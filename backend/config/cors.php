@@ -1,11 +1,27 @@
 <?php
+
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'payment/*',
+    ],
+
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:5173'],
+
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+    ],
+
     'allowed_origins_patterns' => [],
+
     'allowed_headers' => ['*'],
+
     'exposed_headers' => ['Authorization'],
+
     'max_age' => 0,
-    'supports_credentials' => false, // for token-based we don't require cookies
+
+    'supports_credentials' => true,
 ];

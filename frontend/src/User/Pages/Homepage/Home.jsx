@@ -5,7 +5,6 @@ import Image3 from "../../../assets/homep/Home3.png";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import SearchProperty from "../SearchProperty/SearchProperty";
 import Properties from "../Properties";
 import Categories from "../Categories";
 import Navbar from "../../Components/Navbar";
@@ -13,7 +12,7 @@ import Navbar from "../../Components/Navbar";
 const ImageList = [
   {
     id: 1,
-    img: Image1, // You can assign different images later
+    img: Image1,
     title: "পরিবারসহ থাকার জন্য আদর্শ বাসা",
     description:
       "সুরক্ষিত পরিবেশে পরিবার নিয়ে থাকার জন্য বিভিন্ন ভাড়ার বাড়ি এখনই খুঁজুন।",
@@ -52,6 +51,8 @@ const Home = () => {
   return (
     <div>
       <Navbar />
+
+      {/* Hero Slider */}
       <div className="pt-[90px] w-full min-h-[80vh] bg-gray-100 flex items-center">
         <div className="container mx-auto p-6 sm:p-12">
           <Slider {...settings}>
@@ -62,25 +63,15 @@ const Home = () => {
                   <div className="flex flex-col justify-center gap-4 text-center sm:text-left order-2 sm:order-1">
                     <h1
                       data-aos="zoom-in"
-                      data-aos-duration="500"
-                      data-aos-once="true"
                       className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-800"
                     >
                       {data.title}
                     </h1>
-                    <p
-                      data-aos="fade-up"
-                      data-aos-duration="500"
-                      data-aos-delay="100"
-                      className="text-base text-gray-600"
-                    >
+
+                    <p data-aos="fade-up" className="text-base text-gray-600">
                       {data.description}
                     </p>
-                    <div
-                      data-aos="fade-up"
-                      data-aos-duration="500"
-                      data-aos-delay="300"
-                    >
+                    <div data-aos="fade-up">
                       <button className="bg-gradient-to-r from-[#EC733B] to-[#e45716] hover:scale-105 duration-300 text-white py-2 px-6 rounded-full cursor-pointer">
                         Book Now
                       </button>
@@ -107,9 +98,31 @@ const Home = () => {
           </Slider>
         </div>
       </div>
-      <section id="search-property">
-        <SearchProperty />
-      </section>
+
+      {/* ⭐ NEW TEXT SECTION ADDED BELOW ⭐ */}
+      <div
+        data-aos="fade-up"
+        className="container mx-auto px-6 py-12 text-center"
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+          আপনার প্রয়োজনের বাসা খুঁজে নিন সহজেই
+        </h2>
+
+        <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+          আমরা আপনাকে দিচ্ছি সবচেয়ে সহজ উপায়ে আপনার বাজেট, লোকেশন এবং প্রয়োজন
+          অনুযায়ী বাসা, অফিস অথবা সাবলেট খুঁজে নেওয়ার সুবিধা। হাজারো ভেরিফাইড
+          অ্যাড এর মধ্য থেকে ঝামেলাহীনভাবে খুঁজে নিন আপনার পছন্দের ঠিকানা।
+        </p>
+
+        <button
+          onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}
+          className="mt-6 bg-[#EC733B] hover:bg-[#e45716] text-white px-8 py-3 rounded-full shadow-md hover:shadow-lg transition cursor-pointer"
+        >
+          Start Searching
+        </button>
+      </div>
+
+      {/* Existing Sections */}
       <Properties />
       <Categories />
     </div>

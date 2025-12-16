@@ -14,6 +14,12 @@ return [
     |
     */
 
+    'sslcommerz' => [
+        'store_id'     => env('SSL_COMMERZ_STORE_ID'),
+        'store_password' => env('SSL_COMMERZ_STORE_PASSWORD'),
+        'sandbox'      => env('SSL_COMMERZ_SANDBOX', true),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -42,7 +42,7 @@ const Footer = () => {
         {/* Contact Info */}
         <div>
           <h3 className="text-white font-semibold mb-4">Contact Us</h3>
-          <p className="text-sm mb-2">Email: info@example.com</p>
+          <p className="text-sm mb-2">Email: tolet@gmail.com</p>
           <p className="text-sm mb-4">Phone: +880 1234 567890</p>
 
           {/* Social Media Icons */}
@@ -58,7 +58,7 @@ const Footer = () => {
 
       {/* Bottom Line */}
       <div className="text-center text-sm text-gray-500 mt-10">
-        &copy; {new Date().getFullYear()} ABC MultiNational. All rights reserved.
+        &copy; {new Date().getFullYear()} To Let Find your Home. All rights reserved.
       </div>
     </footer>
   );
