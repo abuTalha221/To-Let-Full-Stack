@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import api from "../../../api";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const AdminLogin = () => {
   const [form, setForm] = useState({
@@ -7,7 +10,9 @@ const AdminLogin = () => {
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -30,15 +35,34 @@ const AdminLogin = () => {
 
     setLoading(true);
 
-    // ⚠️ Backend will be added later
-    setTimeout(() => {
-      setLoading(false);
-      Swal.fire({
-        icon: "info",
-        title: "Admin Login",
-        text: "Backend not connected yet",
+    try {
+      const res = await api.post("/admin/login", form);
+
+      // ✅ Store admin token separately
+      localStorage.setItem("admin_token", res.data.token);
+      localStorage.setItem("admin", JSON.stringify(res.data.admin));
+
+      // ✅ Set authorization header
+      api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
+
+      await Swal.fire({
+        icon: "success",
+        title: "Welcome Admin 👋",
+        text: "Login successful",
+        confirmButtonColor: "#e45716",
       });
-    }, 1000);
+
+      // ✅ Redirect to admin dashboard
+      navigate("/admin/dashboard");
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: err.response?.data?.message || "Invalid credentials",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,23 +88,34 @@ const AdminLogin = () => {
               value={form.email}
               onChange={handleChange}
               className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="admin@example.com"
+              placeholder="admin@gmail.com"
             />
           </div>
 
-          {/* Password */}
+          {/* Password with Eye */}
           <div>
             <label className="text-sm font-medium text-gray-700">
               Password
             </label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              placeholder="••••••••"
-            />
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                className="mt-1 w-full border rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                placeholder="••••••••"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
           {/* Button */}

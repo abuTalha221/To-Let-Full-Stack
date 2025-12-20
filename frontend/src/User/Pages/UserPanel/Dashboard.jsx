@@ -1,34 +1,60 @@
-import React, { useEffect, useState } from "react";
-import api from "../../../api"; // adjust path if needed
+import React from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const [credits, setCredits] = useState(0);
-
-  useEffect(() => {
-    api.get("/credits").then((res) => {
-      setCredits(res.data.credits);
-    });
-  }, []);
+  const { credits, ordersCount } = useOutletContext();
+  const navigate = useNavigate();
 
   return (
     <div className="p-4 md:p-10">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-8">Dashboard</h2>
+      <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+        Dashboard
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white shadow-sm border rounded-2xl p-6">
-          <h3 className="text-gray-600 text-sm mb-2">Available Credits</h3>
-          <p className="text-4xl font-bold text-gray-900">{credits}</p>
+
+        {/* 🔹 Credits */}
+        <div
+          onClick={() => navigate("/user/credits")}
+          className="bg-white shadow-sm rounded-2xl p-6 cursor-pointer
+                     hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <h3 className="text-gray-600 text-sm mb-2">
+            Available Credits
+          </h3>
+          <p className="text-4xl font-bold text-gray-900">
+            {credits}
+          </p>
         </div>
 
-        <div className="bg-white shadow-sm border rounded-2xl p-6">
-          <h3 className="text-gray-600 text-sm mb-2">House Posts</h3>
-          <p className="text-4xl font-bold text-gray-900">0</p>
+        {/* 🔹 Orders */}
+        <div
+          onClick={() => navigate("/user/orders")}
+          className="bg-white shadow-sm rounded-2xl p-6 cursor-pointer
+                     hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <h3 className="text-gray-600 text-sm mb-2">
+            Total Orders
+          </h3>
+          <p className="text-4xl font-bold text-gray-900">
+            {ordersCount}
+          </p>
         </div>
 
-        <div className="bg-white shadow-sm border rounded-2xl p-6">
-          <h3 className="text-gray-600 text-sm mb-2">Orders</h3>
-          <p className="text-4xl font-bold text-gray-900">0</p>
+        {/* 🔹 Properties (future) */}
+        <div
+          onClick={() => navigate("/user/my-properties")}
+          className="bg-white shadow-sm rounded-2xl p-6 cursor-pointer
+                     hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <h3 className="text-gray-600 text-sm mb-2">
+            Properties
+          </h3>
+          <p className="text-4xl font-bold text-gray-900">
+            0
+          </p>
         </div>
+
       </div>
     </div>
   );

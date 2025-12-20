@@ -110,8 +110,7 @@ const UserNavbar = ({ sidebarOpen = false, setSidebarOpen = () => {}, hideSideba
             : "opacity-0 scale-95 max-h-0 pointer-events-none"
         }`}
       >
-        {/* Triangle Arrow */}
-        <div className="absolute -top-2 right-6 w-3 h-3 bg-white rotate-45 border-l border-t border-gray-200"></div>
+      
 
         {/* Profile */}
         <button

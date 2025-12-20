@@ -5,50 +5,57 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminOrderController;
 
 /*
 |--------------------------------------------------------------------------
-| 🌐 Public Routes (NO LOGIN REQUIRED)
+| Public Routes
 |--------------------------------------------------------------------------
 */
 
-// 🔹 Register (creates user + sends OTP)
 Route::post('/register', [AuthController::class, 'register']);
-
-// 🔹 Verify Email OTP
 Route::post('/verify-otp', [AuthController::class, 'verifyEmailOtp']);
-
-// 🔁 Resend OTP (protected against abuse)
 Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
-
-// 🔹 Login (ONLY if email is verified)
 Route::post('/login', [AuthController::class, 'login']);
 
-// Admin Login
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
-
 
 /*
 |--------------------------------------------------------------------------
-| 🔒 Protected Routes (LOGIN REQUIRED)
+| USER ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    // 🔐 Auth
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // 👤 User Profile
     Route::get('/user/profile', [UserController::class, 'profile']);
     Route::post('/user/change-password', [UserController::class, 'changePassword']);
 
-    // 💳 Credits
     Route::post('/buy-credits', [CreditController::class, 'buy']);
     Route::get('/credits', [CreditController::class, 'credits']);
 
-    // 💰 Payments
-    Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment'])
-        ->name('payment.initiate');
+    Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment']);
+
+    Route::post('/order-property', [OrderController::class, 'store']);
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/my-orders/{id}', [OrderController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN ROUTES (🔥 SEPARATE GUARD)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:admin')->prefix('admin')->group(function () {
+
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+    Route::get('/me', [AdminAuthController::class, 'me']);
+
+    Route::get('/orders', [AdminOrderController::class, 'index']);
+    Route::get('/orders/{id}', [AdminOrderController::class, 'show']);
+    Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
 });
