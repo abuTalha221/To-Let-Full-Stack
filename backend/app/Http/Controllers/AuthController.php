@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Services\BrevoMailService;
 
 class AuthController extends Controller
 {
@@ -24,10 +24,8 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Check existing user
         $user = User::where('email', $validated['email'])->first();
 
-        // Already verified → must login
         if ($user && $user->email_verified_at) {
             return response()->json([
                 'status' => false,
@@ -37,29 +35,28 @@ class AuthController extends Controller
 
         $otp = (string) rand(100000, 999999);
 
-        // If exists but not verified → resend OTP
         if ($user) {
             $user->update([
                 'email_otp' => $otp,
-                'email_otp_expires_at' => Carbon::now()->addSeconds(self::OTP_EXPIRY),
+                'email_otp_expires_at' => now()->addSeconds(self::OTP_EXPIRY),
                 'updated_at' => now(),
             ]);
         } else {
-            // Create new user
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'email_otp' => $otp,
-                'email_otp_expires_at' => Carbon::now()->addSeconds(self::OTP_EXPIRY),
+                'email_otp_expires_at' => now()->addSeconds(self::OTP_EXPIRY),
             ]);
         }
 
-        // Send OTP email
-        Mail::send('emails.otp', compact('otp', 'user'), function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject('Verify Your Email - To Let');
-        });
+        // ✅ SEND OTP USING BREVO API
+        BrevoMailService::sendOtp(
+            $user->email,
+            $user->name,
+            $otp
+        );
 
         return response()->json([
             'status' => true,
@@ -88,27 +85,20 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if (Carbon::now()->gt($user->email_otp_expires_at)) {
+        if (now()->gt($user->email_otp_expires_at)) {
             return response()->json([
                 'status' => false,
                 'message' => 'OTP expired',
             ], 400);
         }
 
-        // Verify email
         $user->update([
             'email_verified_at' => now(),
             'email_otp' => null,
             'email_otp_expires_at' => null,
         ]);
 
-        // Send success email
-        Mail::send('emails.registration-success', compact('user'), function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject('Welcome to To Let 🎉');
-        });
-
-        // Login token
+        // 🔑 Login token
         $token = $user->createToken('tolet_token')->plainTextToken;
 
         return response()->json([
@@ -120,7 +110,7 @@ class AuthController extends Controller
     }
 
     // =============================
-    // 🔁 RESEND OTP (PROPERLY FIXED)
+    // 🔁 RESEND OTP
     // =============================
     public function resendOtp(Request $request)
     {
@@ -137,7 +127,6 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // ⏳ Cooldown check (NOT OTP expiry)
         if ($user->updated_at->addSeconds(self::RESEND_COOLDOWN)->gt(now())) {
             return response()->json([
                 'status' => false,
@@ -149,14 +138,16 @@ class AuthController extends Controller
 
         $user->update([
             'email_otp' => $otp,
-            'email_otp_expires_at' => Carbon::now()->addSeconds(self::OTP_EXPIRY),
+            'email_otp_expires_at' => now()->addSeconds(self::OTP_EXPIRY),
             'updated_at' => now(),
         ]);
 
-        Mail::send('emails.otp', compact('otp', 'user'), function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject('Resend OTP - To Let');
-        });
+        // ✅ SEND OTP USING BREVO API
+        BrevoMailService::sendOtp(
+            $user->email,
+            $user->name,
+            $otp
+        );
 
         return response()->json([
             'status' => true,

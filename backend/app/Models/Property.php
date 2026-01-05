@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Property extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'month_id',
+        'primary_category',
+        'property_type',
+
+        'bedroom',
+        'bathroom',
+        'balcony',
+        'floor',
+        'gender',
+        'size',
+
+        'division',
+        'district',
+        'area',
+        'subarea',
+        'sector_no',
+        'road_no',
+        'house_no',
+
+        'contact',
+
+        'price',
+        'price_type',
+
+        'status',
+        'admin_status',
+
+        'electricity',
+        'water',
+        'security',
+        'gas',
+        'lift',
+    ];
+
+    /* ✅ APPEND ATTRIBUTES FOR API */
+    protected $appends = [
+        'title',
+        'monthText',
+        'categoryText',
+    ];
+
+    /* ===============================
+       RELATION
+    =============================== */
+    public function images()
+    {
+        return $this->hasMany(PropertyImage::class);
+    }
+
+    /* ===============================
+       CATEGORY TEXT (FIXED)
+    =============================== */
+    public function getCategoryTextAttribute()
+    {
+        return match ((int) $this->primary_category) {
+            1 => 'Family',
+            2 => 'Bachelor',
+            3 => 'Office',
+            4 => 'Sublet',
+            5 => 'Hostel',
+            default => '',
+        };
+    }
+
+    /* ===============================
+       MONTH TEXT (FIXED)
+    =============================== */
+    public function getMonthTextAttribute()
+    {
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March',
+            4 => 'April', 5 => 'May', 6 => 'June',
+            7 => 'July', 8 => 'August', 9 => 'September',
+            10 => 'October', 11 => 'November', 12 => 'December',
+        ];
+
+        return $months[$this->month_id] ?? '';
+    }
+
+    /* ===============================
+       TITLE
+    =============================== */
+    public function getTitleAttribute()
+    {
+        $bedroomText = match ((int) $this->bedroom) {
+            1 => 'Single Bedroom',
+            2 => 'Double Bedroom',
+            3 => 'Triple Bedroom',
+            default => $this->bedroom . ' Bedroom',
+        };
+
+        $subarea = $this->subarea ? $this->subarea . ', ' : '';
+        $city = $this->district ?? 'Dhaka';
+
+        return "{$bedroomText} {$this->property_type} To-let / Rent from {$this->monthText} for {$this->categoryText} in {$subarea}{$this->area}, {$city}";
+    }
+}

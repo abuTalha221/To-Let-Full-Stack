@@ -7,10 +7,6 @@ const packages = [
   { id: 1, name: "Starter Package", credits: 100, price: 100 },
   { id: 2, name: "Basic Package", credits: 220, price: 200 },
   { id: 3, name: "Exclusive Package", credits: 550, price: 500 },
-  { id: 4, name: "Bronze Package", credits: 1150, price: 1000 },
-  { id: 5, name: "Silver Package", credits: 2400, price: 2000 },
-  { id: 6, name: "Golden Package", credits: 6250, price: 5000 },
-  { id: 7, name: "Platinum Package", credits: 13000, price: 10000 },
 ];
 
 const BuyCredits = () => {

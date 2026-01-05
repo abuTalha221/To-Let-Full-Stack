@@ -1,5 +1,7 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import api from "../../api";
 import logo from "../../assets/logo.png";
 import {
   MdDashboard,
@@ -37,7 +39,7 @@ const menu = [
       {
         id: 3,
         name: "Properties",
-        link: "/admin/manage-properties",
+        link: "/admin/properties",
         icon: <MdHomeWork />,
       },
       {
@@ -87,11 +89,48 @@ const menu = [
 const AdminSidebar = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("admin_logged_in");
-    navigate("/admin");
+  // 🔴 LOGOUT HANDLER
+  const handleLogout = async () => {
+    const confirm = await Swal.fire({
+      title: "Logout?",
+      text: "You will be logged out from admin panel",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Logout",
+      confirmButtonColor: "#e45716",
+      cancelButtonColor: "#9ca3af",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      // 🔐 Backend logout
+      await api.post("/admin/logout");
+
+      // 🧹 Clear admin data
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin");
+
+      // 🔒 Remove auth header
+      delete api.defaults.headers.common.Authorization;
+
+      // ✅ Success message
+      await Swal.fire({
+        icon: "success",
+        title: "Logged Out 👋",
+        text: "Logout successful",
+        confirmButtonColor: "#e45716",
+      });
+
+      // 🔁 Redirect to login
+      navigate("/admin");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Logout Failed",
+        text: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (

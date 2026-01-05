@@ -41,4 +41,9 @@ return [
         ],
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+        'from_email' => env('BREVO_SENDER_EMAIL'),
+        'from_name' => env('BREVO_SENDER_NAME'),
+    ],
 ];

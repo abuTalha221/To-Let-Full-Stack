@@ -26,7 +26,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::create([
-            'user_id' => auth()->id(), // null if guest
+            'user_id' => auth()->id(), 
             'division' => $request->division,
             'district' => $request->district,
             'area' => $request->area,
