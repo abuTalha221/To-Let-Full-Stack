@@ -109,6 +109,21 @@ class PaymentController extends Controller
             ],
         ]);
 
+        // Ensure credentials are present before attempting to contact the gateway
+        if (empty($this->store_id) || empty($this->store_passwd)) {
+            Log::error('SSLCommerz credentials missing', [
+                'store_id_present' => !empty($this->store_id),
+                'store_passwd_present' => !empty($this->store_passwd),
+            ]);
+
+            $transaction->update(['status' => 'failed', 'raw_response' => 'missing_store_credentials']);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment gateway not configured',
+            ], 500);
+        }
+
         try {
             if ($this->is_sandbox) {
                 $response = Http::withoutVerifying()->timeout(15)->asForm()->post($api_url, $post_data);
@@ -154,7 +169,10 @@ class PaymentController extends Controller
             return response()->json([
                 'status' => true,
                 'GatewayPageURL' => $data['GatewayPageURL'],
+                // also provide consistent, lower-case keys for clients that expect them
+                'gateway_url' => $data['GatewayPageURL'],
                 'gateway_redirect' => rtrim(config('app.url'), '/') . '/payment/redirect/' . $transaction->id,
+                'redirect_url' => rtrim(config('app.url'), '/') . '/payment/redirect/' . $transaction->id,
                 'transaction_id' => $transaction->id,
             ]);
         }
@@ -304,7 +322,63 @@ class PaymentController extends Controller
     public function ipn(Request $request)
     {
         $val_id = $request->input('val_id');
+
+        if (! $val_id) {
+            Log::warning('IPN missing val_id', ['payload' => $request->all()]);
+            return response('Missing val_id', 400);
+        }
+
         $verify = $this->verifyTransaction($val_id);
+        if (! $verify['ok']) {
+            Log::warning('IPN validation failed', ['message' => $verify['message'], 'payload' => $request->all()]);
+            return response('Validation failed', 400);
+        }
+
+        $data = $verify['data'] ?? [];
+        $internalId = $data['value_a'] ?? $request->input('value_a');
+        $tran_id = $data['tran_id'] ?? $request->input('tran_id');
+
+        $transaction = null;
+        if ($internalId) {
+            $transaction = Transaction::find($internalId);
+        }
+        if (! $transaction && $tran_id) {
+            $transaction = Transaction::where('transaction_id', $tran_id)->first();
+        }
+
+        if (! $transaction) {
+            Log::warning('IPN transaction not found', ['val_id' => $val_id, 'payload' => $request->all()]);
+            return response('Transaction not found', 404);
+        }
+
+        $paidAmount = isset($data['amount']) ? floatval($data['amount']) : (isset($data['total_amount']) ? floatval($data['total_amount']) : null);
+        $paidCurrency = $data['currency'] ?? ($data['currency_type'] ?? 'BDT');
+        $expected = floatval($transaction->amount);
+
+        if ($paidAmount !== null) {
+            if (abs($paidAmount - $expected) > 0.01 || strtoupper($paidCurrency) !== strtoupper($transaction->currency ?? 'BDT')) {
+                Log::warning('IPN payment validation mismatch', [
+                    'transaction_id' => $transaction->id,
+                    'expected_amount' => $expected,
+                    'paid_amount' => $paidAmount,
+                    'expected_currency' => $transaction->currency ?? 'BDT',
+                    'paid_currency' => $paidCurrency,
+                    'validation' => $data,
+                ]);
+
+                $transaction->update(['status' => 'failed', 'raw_response' => $data]);
+                return response('Payment mismatch', 400);
+            }
+        }
+
+        $transaction->update(['status' => 'success', 'raw_response' => $data, 'transaction_id' => $tran_id]);
+
+        $user = $transaction->user;
+        if ($user) {
+            $user->credits = ($user->credits ?? 0) + $transaction->credits;
+            $user->save();
+        }
+
         return response('IPN processed', 200);
     }
 

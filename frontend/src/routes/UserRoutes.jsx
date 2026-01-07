@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 
-// Layouts
+/* Layouts */
 import Layout from "../User/Components/Layout";
 import UserLayout from "../User/Components/UserLayout";
 
-// Public Pages
+/* Public Pages */
 import Home from "../User/Pages/Homepage/Home";
 import About from "../User/Pages/About";
 import Services from "../User/Pages/Services";
@@ -15,19 +15,22 @@ import VerifyOtp from "../User/Pages/Registration/VerifyOtp";
 import FindHouse from "../User/Pages/FindHouse";
 import OrderHome from "../User/Pages/OrderHome";
 
-// User Property Pages
+/* Public Property Pages */
+import PublicProperties from "../User/Pages/PublicProperties/PublicProperties";
+import ShowPost from "../User/Pages/ShowPost/ShowPost";
+
+/* User Property Pages */
 import AddProperty from "../User/Pages/UserPanel/AddProperty/AddProperty";
 import EditProperty from "../User/Pages/UserPanel/Properties/EditProperty";
 import MyProperties from "../User/Pages/UserPanel/Properties/MyProperties";
-import ShowPost from "../User/Pages/ShowPost/ShowPost";
 
-// Payment
+/* Payment */
 import Payment from "../User/Pages/Payment/Payment";
 import PaymentSuccess from "../User/Pages/UserPanel/PaymentSuccess";
 import PaymentFailed from "../User/Pages/UserPanel/PaymentFailed";
 import PaymentProcessing from "../User/Pages/UserPanel/PaymentProcessing";
 
-// User Panel
+/* User Panel */
 import UserPanel from "../User/Pages/UserPanel/Dashboard";
 import BuyCredits from "../User/Pages/UserPanel/BuyCredits";
 import EditProfile from "../User/Pages/UserPanel/EditProfile";
@@ -35,7 +38,7 @@ import MyOrders from "../User/Pages/UserPanel/MyOrders";
 import ViewOrder from "../User/Pages/UserPanel/ViewOrder";
 import OrderPropertyNow from "../User/Pages/UserPanel/OrderPropertyNow";
 
-// Auth Guard
+/* Auth Guard */
 import PrivateRoute from "../User/Components/Auth/PrivateRoute";
 
 const UserRoutes = () => {
@@ -44,6 +47,9 @@ const UserRoutes = () => {
       {/* 🌐 PUBLIC ROUTES */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/properties" element={<PublicProperties />} />
+        <Route path="/property-post/:id" element={<ShowPost />} />
+
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
@@ -60,8 +66,6 @@ const UserRoutes = () => {
         <Route path="/payment-processing" element={<PaymentProcessing />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failed" element={<PaymentFailed />} />
-
-        <Route path="/property-post/:id" element={<ShowPost />} />
       </Route>
 
       {/* 🔒 PROTECTED USER ROUTES */}
@@ -72,7 +76,7 @@ const UserRoutes = () => {
           <Route path="/user/orders" element={<MyOrders />} />
           <Route path="/user/orders/:id" element={<ViewOrder />} />
 
-          {/* 🏠 PROPERTY ROUTES */}
+          {/* 🏠 PROPERTY */}
           <Route path="/addproperty" element={<AddProperty />} />
           <Route path="/user/my-properties" element={<MyProperties />} />
           <Route path="/user/edit-property/:id" element={<EditProperty />} />

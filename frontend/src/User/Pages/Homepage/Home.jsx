@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Properties from "../Properties";
 import Categories from "../Categories";
 import Navbar from "../../Components/Navbar";
+import PublicProperties from "../PublicProperties/PublicProperties";
 
 const ImageList = [
   {
@@ -122,8 +123,7 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Existing Sections */}
-      <Properties />
+      <PublicProperties />
       <Categories />
     </div>
   );

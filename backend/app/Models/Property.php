@@ -104,4 +104,13 @@ class Property extends Model
 
         return "{$bedroomText} {$this->property_type} To-let / Rent from {$this->monthText} for {$this->categoryText} in {$subarea}{$this->area}, {$city}";
     }
+
+        public function unlockedByUsers()
+    {
+        return $this->belongsToMany(
+            \App\Models\User::class,
+            'property_unlocks'
+        )->withTimestamps();
+    }
+
 }

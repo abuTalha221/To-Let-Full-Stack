@@ -20,13 +20,52 @@ import {
 /* ---------- IMAGE BASE ---------- */
 const IMAGE_BASE_URL = "http://localhost:8000/storage";
 
-/* ---------- DATE FORMAT ---------- */
-const formatDate = (date) =>
-  new Date(date).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+
+
+
+const fetchMe = async () => {
+  try {
+    const res = await api.get("/user");
+    setUser(res.data);
+    setCredits(res.data.credits);
+  } catch {
+    setUser(null); // not logged in
+  }
+};
+
+const fetchUnlockStatus = async () => {
+  try {
+    const res = await api.get(`/properties/${id}/unlock-status`);
+    setIsOwner(res.data.is_owner);
+    setIsUnlocked(res.data.is_unlocked);
+    setCredits(res.data.credits);
+  } catch {
+    // ignore
+  }
+};
+
+const unlockInfo = async () => {
+  if (credits < 10) {
+    Swal.fire(
+      "Not enough credits",
+      "Unlocking information requires 10 credits.",
+      "warning"
+    );
+    return;
+  }
+
+  setUnlocking(true);
+  try {
+    await api.post(`/properties/${id}/unlock`);
+    Swal.fire("Unlocked", "Information unlocked successfully", "success");
+    setCredits((c) => c - 10);
+    setIsUnlocked(true);
+  } catch {
+    Swal.fire("Error", "Failed to unlock information", "error");
+  } finally {
+    setUnlocking(false);
+  }
+};
 
 const ShowPost = () => {
   const { id } = useParams();
@@ -34,6 +73,12 @@ const ShowPost = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [previewIndex, setPreviewIndex] = useState(null);
+  const [user, setUser] = useState(null);
+const [credits, setCredits] = useState(0);
+const [isOwner, setIsOwner] = useState(false);
+const [isUnlocked, setIsUnlocked] = useState(false);
+const [unlocking, setUnlocking] = useState(false);
+
 
   useEffect(() => {
     if (previewIndex === null) return;
@@ -63,9 +108,17 @@ const ShowPost = () => {
     fetchProperty();
   }, []);
 
+  useEffect(() => {
+  fetchProperty();
+  fetchMe();
+  fetchUnlockStatus();
+}, [id]);
+
   const fetchProperty = async () => {
     try {
-      const res = await api.get(`/properties/${id}`);
+      //const res = await api.get(`/properties/${id}`);
+      const res = await api.get(`/public-properties/${id}`);
+
       setProperty(res.data.property);
     } catch {
       Swal.fire("Error", "Property not found", "error");
@@ -102,15 +155,18 @@ const ShowPost = () => {
 
   // ---------- SHORT ADDRESS ----------
   const shortAddress = [
-    property.house_no && `House No: ${property.house_no}/`,
-    property.road_no && `Road No: ${property.road_no}/`,
+    property.house_no && `House No: ${property.house_no}`,
+    property.road_no && `Road No: ${property.road_no}`,
     property.sector_no && `Sector No: ${property.sector_no}`,
   ]
     .filter(Boolean)
-    .join(", ");
+    .join("/ ");
 
   return (
     <div className="max-w-5xl mx-auto p-25 space-y-6 mt-5">
+      <h1 className="text-2xl font-bold text-orange-600 mb-2">
+        {property.categoryText}
+      </h1>
       {/* TITLE */}
       <div className="bg-white rounded-xl shadow p-5">
         <h1 className="text-lg font-bold text-orange-600">{property.title}</h1>
@@ -119,12 +175,13 @@ const ShowPost = () => {
       {/* IMAGES */}
       <div className="bg-white rounded-xl shadow p-5">
         <h2 className="font-semibold mb-3 text-orange-600">Images</h2>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {property.images.map((img, index) => (
             <img
               key={img.id}
               src={`${IMAGE_BASE_URL}/${img.image_path}`}
+              alt={`${property.title} - image ${index + 1}`}
+              loading="lazy"
               className="h-32 w-full object-cover rounded cursor-pointer"
               onClick={() => setPreviewIndex(index)}
             />
@@ -272,24 +329,69 @@ const ShowPost = () => {
       <div className="bg-white rounded-xl shadow p-5 border border-orange-200">
         <h2 className="font-semibold mb-2 text-orange-600">Short Address</h2>
 
-        {shortAddress ? (
-          <p className="text-gray-800 font-medium">{shortAddress}</p>
+        {isOwner || isUnlocked ? (
+          <p className="font-medium">{shortAddress}</p>
         ) : (
-          <p className="text-gray-400 italic">Address not available</p>
+          <p className="text-gray-400 italic">🔒 Locked information</p>
         )}
-
-        {/* FUTURE LOCK NOTE */}
-        <p className="text-xs text-gray-500 mt-2">
-          🔒 This address will be locked for general users.
-        </p>
       </div>
 
       {/* CONTACT */}
       <div className="bg-white rounded-xl shadow p-5 border border-orange-200">
         <h2 className="font-semibold mb-2 text-orange-600">Contact</h2>
-        <div className="flex items-center gap-2">
-          <FaPhone /> {property.contact}
-        </div>
+
+        {(isOwner || isUnlocked) && (
+          <div className="flex items-center gap-2">
+            <FaPhone /> {property.contact}
+          </div>
+        )}
+
+        {!user && (
+          <div className="text-sm text-gray-600 space-y-3">
+            <p>
+              Please log in or register to view the contact information. We
+              protect the privacy of owners.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => (window.location.href = "/login")}
+                className="px-4 py-2 bg-orange-600 text-white rounded"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={() => (window.location.href = "/register")}
+                className="px-4 py-2 border border-orange-600 text-orange-600 rounded"
+              >
+                Register
+              </button>
+            </div>
+          </div>
+        )}
+
+        {user && !isOwner && !isUnlocked && (
+          <div className="text-sm text-gray-600 space-y-3">
+            <p>
+              Unlocking information requires <b>10 credits</b>.
+            </p>
+
+            {credits < 10 ? (
+              <p className="text-red-600">
+                You don’t have enough credits. Please buy credits.
+              </p>
+            ) : (
+              <button
+                onClick={unlockInfo}
+                disabled={unlocking}
+                className="px-4 py-2 bg-orange-600 text-white rounded"
+              >
+                {unlocking ? "Unlocking..." : "Unlock Information (10 Credits)"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* FULL IMAGE PREVIEW */}
@@ -311,8 +413,14 @@ const ShowPost = () => {
 
           <img
             src={`${IMAGE_BASE_URL}/${property.images[previewIndex].image_path}`}
+            alt={`${property.title} - image ${previewIndex + 1}`}
+            loading="lazy"
             className="max-w-[90%] max-h-[90%] rounded-lg"
           />
+
+          <p className="absolute bottom-6 text-white text-sm">
+            {previewIndex + 1} / {property.images.length}
+          </p>
 
           <button
             onClick={showNext}

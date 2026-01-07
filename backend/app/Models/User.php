@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    // ✅ Allow these fields to be saved
+    // ✅ Mass assignable
     protected $fillable = [
         'name',
         'email',
@@ -20,18 +20,30 @@ class User extends Authenticatable
         'email_otp_expires_at',
         'email_verified_at',
         'is_admin',
+        'credits', // ✅ ADD THIS
     ];
 
-    // 🔒 Hide sensitive fields
+    // 🔒 Hidden fields
     protected $hidden = [
         'password',
         'remember_token',
         'email_otp',
     ];
 
-    // 🕒 Tell Laravel these are date fields
+    // 🕒 Casts
     protected $casts = [
         'email_verified_at' => 'datetime',
         'email_otp_expires_at' => 'datetime',
     ];
+
+    /* ======================================
+       🔓 PROPERTY UNLOCK RELATION
+    ====================================== */
+    public function unlockedProperties()
+    {
+        return $this->belongsToMany(
+            \App\Models\Property::class,
+            'property_unlocks'
+        )->withTimestamps();
+    }
 }
