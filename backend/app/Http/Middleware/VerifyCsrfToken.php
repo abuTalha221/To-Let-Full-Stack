@@ -12,8 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'success',
-        'fail',
-        'cancel'
+        // Exclude payment callback endpoints so external gateways can POST without CSRF token
+        'payment/*',
+        'payment',
     ];
 }
