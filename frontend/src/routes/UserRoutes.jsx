@@ -37,6 +37,7 @@ import EditProfile from "../User/Pages/UserPanel/EditProfile";
 import MyOrders from "../User/Pages/UserPanel/MyOrders";
 import ViewOrder from "../User/Pages/UserPanel/ViewOrder";
 import OrderPropertyNow from "../User/Pages/UserPanel/OrderPropertyNow";
+import UnlockedListings from "../User/Pages/UserPanel/UnlockedListings";
 
 /* Auth Guard */
 import PrivateRoute from "../User/Components/Auth/PrivateRoute";
@@ -75,6 +76,7 @@ const UserRoutes = () => {
           <Route path="/user/credits" element={<BuyCredits />} />
           <Route path="/user/orders" element={<MyOrders />} />
           <Route path="/user/orders/:id" element={<ViewOrder />} />
+          <Route path="/user/unlocked" element={<UnlockedListings />} />
 
           {/* 🏠 PROPERTY */}
           <Route path="/addproperty" element={<AddProperty />} />

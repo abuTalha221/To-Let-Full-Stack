@@ -92,17 +92,30 @@ class Property extends Model
     =============================== */
     public function getTitleAttribute()
     {
-        $bedroomText = match ((int) $this->bedroom) {
-            1 => 'Single Bedroom',
-            2 => 'Double Bedroom',
-            3 => 'Triple Bedroom',
-            default => $this->bedroom . ' Bedroom',
-        };
+        // Use office-friendly wording when category is Office (3)
+        if ((int) $this->primary_category === 3) {
+            $roomText = match ((int) $this->bedroom) {
+                0 => 'Office space',
+                1 => 'Office room',
+                default => $this->bedroom . ' Office rooms',
+            };
+
+            $titlePrefix = $roomText;
+        } else {
+            $bedroomText = match ((int) $this->bedroom) {
+                1 => 'Single Bedroom',
+                2 => 'Double Bedroom',
+                3 => 'Triple Bedroom',
+                default => $this->bedroom . ' Bedroom',
+            };
+
+            $titlePrefix = "{$bedroomText} {$this->property_type}";
+        }
 
         $subarea = $this->subarea ? $this->subarea . ', ' : '';
         $city = $this->district ?? 'Dhaka';
 
-        return "{$bedroomText} {$this->property_type} To-let / Rent from {$this->monthText} for {$this->categoryText} in {$subarea}{$this->area}, {$city}";
+        return "{$titlePrefix} To-let / Rent from {$this->monthText} for {$this->categoryText} in {$subarea}{$this->area}, {$city}";
     }
 
         public function unlockedByUsers()

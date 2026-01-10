@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
 import Swal from "sweetalert2";
 import {
@@ -20,53 +20,6 @@ import {
 /* ---------- IMAGE BASE ---------- */
 const IMAGE_BASE_URL = "http://localhost:8000/storage";
 
-
-
-
-const fetchMe = async () => {
-  try {
-    const res = await api.get("/user");
-    setUser(res.data);
-    setCredits(res.data.credits);
-  } catch {
-    setUser(null); // not logged in
-  }
-};
-
-const fetchUnlockStatus = async () => {
-  try {
-    const res = await api.get(`/properties/${id}/unlock-status`);
-    setIsOwner(res.data.is_owner);
-    setIsUnlocked(res.data.is_unlocked);
-    setCredits(res.data.credits);
-  } catch {
-    // ignore
-  }
-};
-
-const unlockInfo = async () => {
-  if (credits < 10) {
-    Swal.fire(
-      "Not enough credits",
-      "Unlocking information requires 10 credits.",
-      "warning"
-    );
-    return;
-  }
-
-  setUnlocking(true);
-  try {
-    await api.post(`/properties/${id}/unlock`);
-    Swal.fire("Unlocked", "Information unlocked successfully", "success");
-    setCredits((c) => c - 10);
-    setIsUnlocked(true);
-  } catch {
-    Swal.fire("Error", "Failed to unlock information", "error");
-  } finally {
-    setUnlocking(false);
-  }
-};
-
 const ShowPost = () => {
   const { id } = useParams();
 
@@ -74,11 +27,102 @@ const ShowPost = () => {
   const [loading, setLoading] = useState(true);
   const [previewIndex, setPreviewIndex] = useState(null);
   const [user, setUser] = useState(null);
-const [credits, setCredits] = useState(0);
-const [isOwner, setIsOwner] = useState(false);
-const [isUnlocked, setIsUnlocked] = useState(false);
-const [unlocking, setUnlocking] = useState(false);
+  const [credits, setCredits] = useState(0);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
 
+  // Fetch current user (if authenticated)
+  const fetchMe = async () => {
+    try {
+      const res = await api.get("/user");
+      // API returns { status: true, user: {...} }
+      const me = res.data?.user ?? res.data;
+      setUser(me);
+      setCredits(me?.credits ?? 0);
+      return me;
+    } catch {
+      setUser(null); // not logged in
+      return null;
+    }
+  };
+
+  // Check whether the current user is the owner and whether this property info is unlocked
+  const fetchUnlockStatus = async () => {
+    try {
+      const res = await api.get(`/properties/${id}/unlock-status`);
+      setIsOwner(res.data.is_owner);
+      setIsUnlocked(res.data.is_unlocked);
+      // server may return current user's credits as well
+      if (res.data.credits != null) setCredits(res.data.credits);
+    } catch {
+      // ignore
+    }
+  };
+
+  const navigate = useNavigate();
+
+  // Attempt to unlock contact/short address (costs 10 credits)
+  const unlockInfo = async () => {
+    if (credits < 10) {
+      Swal.fire(
+        "Not enough credits",
+        "Unlocking information requires 10 credits.",
+        "warning"
+      );
+      return;
+    }
+
+    setUnlocking(true);
+    try {
+      await api.post(`/properties/${id}/unlock`);
+      Swal.fire("Unlocked", "Information unlocked successfully", "success");
+      setCredits((c) => c - 10);
+      setIsUnlocked(true);
+    } catch (err) {
+      // If server responded, show its message and handle common cases
+      if (err?.response) {
+        const { status, data } = err.response;
+
+        if (status === 401) {
+          Swal.fire({
+            title: "Login Required",
+            text: data?.message || "Please login to unlock information.",
+            icon: "warning",
+            confirmButtonText: "Go to Login",
+            confirmButtonColor: "#e45716",
+          }).then((r) => {
+            if (r.isConfirmed) navigate("/login");
+          });
+        } else if (status === 403) {
+          // Not enough credits on server-side
+          const message = data?.message || "Not enough credits";
+          Swal.fire({
+            title: "Unable to unlock",
+            text: `${message}. You can purchase credits to proceed.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Buy Credits",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#e45716",
+          }).then((r) => {
+            if (r.isConfirmed) navigate("/user/credits");
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data?.message || "Failed to unlock information",
+            confirmButtonColor: "#e45716",
+          });
+        }
+      } else {
+        Swal.fire("Error", "Failed to unlock information", "error");
+      }
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   useEffect(() => {
     if (previewIndex === null) return;
@@ -105,14 +149,24 @@ const [unlocking, setUnlocking] = useState(false);
   }, [previewIndex, property]);
 
   useEffect(() => {
-    fetchProperty();
-  }, []);
+    (async () => {
+      // Load property first
+      const prop = await fetchProperty();
 
-  useEffect(() => {
-  fetchProperty();
-  fetchMe();
-  fetchUnlockStatus();
-}, [id]);
+      // Load user
+      const me = await fetchMe();
+
+      // fetchUnlockStatus requires auth; it will be ignored for unauthenticated users
+      await fetchUnlockStatus();
+
+      // Fallback: if server didn't provide ownership info, compute locally using fetched values
+      // Compare as strings to avoid number/string mismatches from API
+      if (prop && me && String(prop.user_id) === String(me.id)) {
+        setIsOwner(true);
+        setIsUnlocked(true);
+      }
+    })();
+  }, [id]);
 
   const fetchProperty = async () => {
     try {
@@ -120,8 +174,10 @@ const [unlocking, setUnlocking] = useState(false);
       const res = await api.get(`/public-properties/${id}`);
 
       setProperty(res.data.property);
+      return res.data.property;
     } catch {
       Swal.fire("Error", "Property not found", "error");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -332,7 +388,9 @@ const [unlocking, setUnlocking] = useState(false);
         {isOwner || isUnlocked ? (
           <p className="font-medium">{shortAddress}</p>
         ) : (
-          <p className="text-gray-400 italic">🔒 Locked information</p>
+          <p className="text-gray-400 italic">
+            Short Address Locked information
+          </p>
         )}
       </div>
 
@@ -349,8 +407,10 @@ const [unlocking, setUnlocking] = useState(false);
         {!user && (
           <div className="text-sm text-gray-600 space-y-3">
             <p>
-              Please log in or register to view the contact information. We
-              protect the privacy of owners.
+              Please login for show the contact information. Please log in or
+              register to view the full property details. We protect the privacy
+              of owners and do not share contact information with unregistered
+              users.
             </p>
 
             <div className="flex gap-3">
@@ -378,16 +438,36 @@ const [unlocking, setUnlocking] = useState(false);
             </p>
 
             {credits < 10 ? (
-              <p className="text-red-600">
-                You don’t have enough credits. Please buy credits.
-              </p>
+              <div className="space-y-3">
+                <p className="text-red-600">
+                  You do not have enough credits to unlock information. Unlocking
+                  information requires <b>10 credits</b>. You can purchase credits
+                  via Card, Mobile banking, or Net banking.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate('/user/credits')}
+                    className="px-4 py-2 bg-green-600 text-white rounded"
+                  >
+                    Buy Credits
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/user/credits')}
+                    className="px-4 py-2 border border-orange-600 text-orange-600 rounded"
+                  >
+                    See Plans
+                  </button>
+                </div>
+              </div>
             ) : (
               <button
                 onClick={unlockInfo}
                 disabled={unlocking}
                 className="px-4 py-2 bg-orange-600 text-white rounded"
               >
-                {unlocking ? "Unlocking..." : "Unlock Information (10 Credits)"}
+                {unlocking ? "Unlocking..." : "Unlock Information"}
               </button>
             )}
           </div>

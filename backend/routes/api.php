@@ -67,7 +67,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/properties/{id}/toggle-status', [PropertyController::class, 'toggleStatus']);
 
     // 🔓 UNLOCK PROPERTY CONTACT & ADDRESS
+    Route::get('/properties/{id}/unlock-status', [PropertyUnlockController::class, 'status']);
     Route::post('/properties/{id}/unlock', [PropertyUnlockController::class, 'unlock']);
+
+    // 🔓 USER UNLOCKED LISTINGS
+    Route::get('/user/unlocked', [PropertyUnlockController::class, 'index']);
 });
 
 /*
