@@ -382,6 +382,33 @@ class PaymentController extends Controller
         return response('IPN processed', 200);
     }
 
+    // API: get transaction status for frontend polling
+    public function transactionStatus(Request $request, $id)
+    {
+        $transaction = \App\Models\Transaction::find($id);
+        if (! $transaction) {
+            return response()->json(['status' => false, 'message' => 'Transaction not found'], 404);
+        }
+
+        // authorize: ensure the authenticated user owns the transaction
+        $user = $request->user();
+        if ($user && $transaction->user_id && $user->id !== $transaction->user_id) {
+            return response()->json(['status' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        return response()->json([
+            'status' => true,
+            'transaction' => [
+                'id' => $transaction->id,
+                'status' => $transaction->status,
+                'credits' => $transaction->credits,
+                'amount' => $transaction->amount,
+                'transaction_id' => $transaction->transaction_id,
+                'raw_response' => $transaction->raw_response,
+            ],
+        ]);
+    }
+
     protected function verifyTransaction($val_id)
     {
         if (!$val_id) {

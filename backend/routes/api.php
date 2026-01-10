@@ -53,6 +53,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 💳 PAYMENT
     Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment']);
+    // GET transaction status for frontend polling
+    Route::get('/transactions/{id}', [PaymentController::class, 'transactionStatus']);
 
     // 📦 ORDERS
     Route::post('/order-property', [OrderController::class, 'store']);

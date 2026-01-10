@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import Swal from "sweetalert2";
 import api from "../../../api";
@@ -11,6 +12,8 @@ const packages = [
 
 const BuyCredits = () => {
   const [loadingId, setLoadingId] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleBuy = async (pkg) => {
     const confirm = await Swal.fire({
@@ -28,7 +31,7 @@ const BuyCredits = () => {
       setLoadingId(pkg.id);
 
       Swal.fire({
-        title: "Redirecting to payment gateway...",
+        title: "Initiating payment...",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
@@ -46,15 +49,53 @@ const BuyCredits = () => {
 
       Swal.close();
 
-      if (res?.data?.GatewayPageURL) {
-        window.location.href = res.data.GatewayPageURL;
+      const data = res?.data || {};
+      const txId = data.transaction_id || null;
+      const gateway = data.gateway_redirect || data.redirect_url || data.GatewayPageURL || data.gateway_url || null;
+
+      if (gateway) {
+        // Try to open in new tab; fallback to same-tab if blocked
+        const opened = window.open(gateway, "_blank");
+        if (!opened) {
+          window.location.href = gateway;
+        }
+
+        Swal.fire({
+          icon: "success",
+          title: "Payment started",
+          html: txId ? `Transaction started (ID: <b>${txId}</b>). Payment page opened in a new tab.` : 'Payment started. Payment page opened in a new tab.',
+          showCancelButton: true,
+          confirmButtonText: "View Status",
+          cancelButtonText: "Close",
+          confirmButtonColor: "#e45716",
+        }).then((r) => {
+          if (r.isConfirmed && txId) {
+            navigate(`/payment-processing?transaction_id=${txId}`);
+          }
+        });
+
         return;
       }
 
-      throw new Error("No GatewayPageURL returned");
+      throw new Error("No gateway URL returned");
     } catch (err) {
       Swal.close();
-      Swal.fire("Error", "Payment initiation failed", "error");
+      const detail = err?.response?.data?.message || err?.message || "Payment initiation failed";
+
+      const retry = await Swal.fire({
+        icon: "error",
+        title: "Payment initiation failed",
+        text: detail,
+        showCancelButton: true,
+        confirmButtonText: "Retry",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#e45716",
+      });
+
+      if (retry.isConfirmed) {
+        // retry
+        handleBuy(pkg);
+      }
     } finally {
       setLoadingId(null);
     }
