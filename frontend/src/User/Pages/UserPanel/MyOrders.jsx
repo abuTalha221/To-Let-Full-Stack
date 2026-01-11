@@ -185,7 +185,7 @@ const MyOrders = () => {
   return (
     <div className="p-6">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print-hide">
         <h2 className="text-3xl font-extrabold text-gray-800">
           My Orders
         </h2>

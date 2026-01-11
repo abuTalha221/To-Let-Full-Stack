@@ -6,18 +6,26 @@ import UserNavbar from "./UserNavbar";
 
 const UserLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const [credits, setCredits] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
+  const [propertiesCount, setPropertiesCount] = useState(0); // ✅ NEW
 
   useEffect(() => {
     // 🔹 fetch credits
     api.get("/credits").then((res) => {
-      setCredits(res.data.credits);
+      setCredits(res.data.credits || 0);
     });
 
     // 🔹 fetch orders count
     api.get("/my-orders").then((res) => {
-      setOrdersCount(res.data.orders.length);
+      setOrdersCount(res.data.orders?.length || 0);
+    });
+
+    // 🔹 fetch properties count ✅
+    api.get("/my-properties").then((res) => {
+      setPropertiesCount(res.data.properties?.length || 0);
+      // 👆 adjust key if API returns array directly
     });
   }, []);
 
@@ -34,7 +42,8 @@ const UserLayout = () => {
         />
 
         <main className="p-4 md:p-6 overflow-y-auto h-full">
-          <Outlet context={{ credits, ordersCount }} />
+          {/* ✅ pass propertiesCount */}
+          <Outlet context={{ credits, ordersCount, propertiesCount }} />
         </main>
       </div>
     </div>

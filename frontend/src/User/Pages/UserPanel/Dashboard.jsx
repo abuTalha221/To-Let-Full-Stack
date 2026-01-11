@@ -2,7 +2,7 @@ import React from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const { credits, ordersCount } = useOutletContext();
+  const { credits, ordersCount, propertiesCount } = useOutletContext();
   const navigate = useNavigate();
 
   return (
@@ -41,7 +41,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* 🔹 Properties (future) */}
+        {/* 🔹 Properties */}
         <div
           onClick={() => navigate("/user/my-properties")}
           className="bg-white shadow-sm rounded-2xl p-6 cursor-pointer
@@ -51,7 +51,7 @@ const Dashboard = () => {
             Properties
           </h3>
           <p className="text-4xl font-bold text-gray-900">
-            0
+            {propertiesCount}
           </p>
         </div>
 

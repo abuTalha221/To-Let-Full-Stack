@@ -117,14 +117,6 @@ const UserSidebar = ({ sidebarOpen }) => {
               </button>
 
               <button
-                onClick={() => navigate("/user/saved")}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#EC733B]/10 transition"
-              >
-                <FaHeart className="text-[#EC733B]" />
-                {sidebarOpen && <span>Saved Listings</span>}
-              </button>
-
-              <button
                 onClick={() => navigate("/user/unlocked")}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#EC733B]/10 transition"
               >

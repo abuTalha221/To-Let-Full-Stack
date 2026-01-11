@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  /* Hide modal overlay */
+  .print-overlay {
+    background: none !important;
+  }
+
+  /* Hide buttons & close icon */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Remove modal look */
+  .print-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-height: none !important;
+  }
+
+  /* PAID watermark */
+  .print-watermark {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 120px;
+    font-weight: 800;
+    color: rgba(34, 197, 94, 0.15);
+    pointer-events: none;
+    z-index: 20;
+  }
+}
