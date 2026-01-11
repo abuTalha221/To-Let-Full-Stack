@@ -118,8 +118,133 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 10. Return FULL SSL response to frontend
-        return response()->json($response->json());
+        // ✅ 10. Return FULL SSL response to frontend and include server transaction id
+        $resp = $response->json();
+        $resp['transaction_id'] = $transactionId;
+        $resp['server_transaction_id'] = $transactionId;
+        return response()->json($resp);
+    }
+
+    // ✅ INITIATE ORDER PAYMENT
+    public function initiateOrderPayment(Request $request)
+    {
+        // ✅ 1. Validate frontend data
+        $request->validate([
+            'order_id' => 'required|integer',
+        ]);
+
+        // ✅ 2. Check credentials
+        if (!env('SSLCOMMERZ_STORE_ID') || !env('SSLCOMMERZ_STORE_PASSWORD')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'SSLCommerz credentials missing in .env',
+            ], 500);
+        }
+
+        // ✅ 3. Get authenticated user
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        // ✅ 4. Find the order
+        $order = \App\Models\Order::where('id', $request->order_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        if ($order->payment_status === 'paid') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order is already paid',
+            ], 400);
+        }
+
+        // ✅ 5. Generate transaction ID
+        $transactionId = 'ORD_' . $order->id . '_' . time();
+
+        // ✅ 6. Save transaction record
+        $transaction = Transaction::create([
+            'user_id' => $user->id,
+            'package_name' => 'Order #' . $order->id,
+            'credits' => 0,
+            'amount' => $order->cost,
+            'payment_gateway' => 'sslcommerz',
+            'transaction_id' => $transactionId,
+            'status' => 'pending',
+            'order_id' => $order->id,
+        ]);
+
+        // ✅ 7. Prepare post data
+        $post_data = [
+            'store_id'     => env('SSLCOMMERZ_STORE_ID'),
+            'store_passwd' => env('SSLCOMMERZ_STORE_PASSWORD'),
+            'total_amount' => (float) $order->cost,
+            'currency'     => 'BDT',
+            'tran_id'      => $transactionId,
+
+            'success_url' => 'http://127.0.0.1:8000/api/payment/success',
+            'fail_url'    => 'http://127.0.0.1:8000/api/payment/fail',
+            'cancel_url'  => 'http://127.0.0.1:8000/api/payment/cancel',
+
+            'shipping_method' => 'NO',
+
+            'cus_name'    => $user->name ?? 'User',
+            'cus_email'   => $user->email,
+            'cus_phone'   => '01700000000',
+            'cus_add1'    => 'Dhaka',
+            'cus_city'    => 'Dhaka',
+            'cus_country' => 'Bangladesh',
+
+            'product_name'     => 'Order #' . $order->id,
+            'product_category' => 'Order Payment',
+            'product_profile'  => 'non-physical',
+        ];
+
+        // ✅ 8. Sandbox or Live URL
+        $api_url = env('SSLCOMMERZ_SANDBOX', true)
+            ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
+            : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php';
+
+        // ✅ 9. Call SSLCommerz
+        try {
+            $response = Http::withoutVerifying()
+                ->timeout(20)
+                ->asForm()
+                ->post($api_url, $post_data);
+        } catch (\Exception $e) {
+            $transaction->update(['status' => 'failed']);
+            return response()->json([
+                'status' => false,
+                'message' => 'SSLCommerz connection failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        // ✅ 10. Handle failure
+        if ($response->failed()) {
+            $transaction->update(['status' => 'failed']);
+            return response()->json([
+                'status' => false,
+                'message' => 'SSLCommerz request failed',
+                'response' => $response->body(),
+            ], 500);
+        }
+
+        // ✅ 11. Return SSL response and include our server transaction_id for client-side polling
+        $resp = $response->json();
+        $resp['transaction_id'] = $transactionId;
+        $resp['server_transaction_id'] = $transactionId;
+        return response()->json($resp);
     }
 
     // ✅ SUCCESS: Backend receives callback, then redirects to frontend
@@ -148,20 +273,37 @@ class PaymentController extends Controller
                 'raw_response' => $request->all(),
             ]);
 
-            // ✅ Add credits to user
-            $user = $transaction->user;
-            if ($user) {
-                $user->increment('credits', $transaction->credits);
-                \Log::info('Credits added to user', [
-                    'user_id' => $user->id,
-                    'credits' => $transaction->credits,
-                ]);
+            // ✅ Add credits to user (for credit purchases)
+            if ($transaction->credits > 0) {
+                $user = $transaction->user;
+                if ($user) {
+                    $user->increment('credits', $transaction->credits);
+                    \Log::info('Credits added to user', [
+                        'user_id' => $user->id,
+                        'credits' => $transaction->credits,
+                    ]);
+                }
+                // Redirect to credits page
+                $redirectUrl = $this->getFrontendUrl() . '/user/credits?payment_status=success&message=Credits%20added%20successfully';
+            } else {
+                // For order payments, update order status
+                if ($transaction->order_id) {
+                    $order = \App\Models\Order::find($transaction->order_id);
+                    if ($order) {
+                        $order->update(['payment_status' => 'paid']);
+                        \Log::info('Order marked as paid', [
+                            'order_id' => $order->id,
+                        ]);
+                    }
+                }
+                // Redirect to my orders page
+                $redirectUrl = $this->getFrontendUrl() . '/user/orders?payment_status=success&message=Order%20paid%20successfully';
             }
 
             \Log::info('Payment completed successfully for transaction: ' . $transactionId);
 
-            // ✅ Redirect to success page
-            return redirect($this->getFrontendUrl() . '/user/credits?payment_status=success&message=Credits%20added%20successfully');
+            // ✅ Redirect to appropriate page
+            return redirect($redirectUrl);
 
         } catch (\Exception $e) {
             \Log::error('Payment success error: ' . $e->getMessage(), [

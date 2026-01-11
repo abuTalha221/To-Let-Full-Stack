@@ -36,4 +36,12 @@ class Order extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    /**
+     * Transactions related to this order
+     */
+    public function transactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class);
+    }
 }

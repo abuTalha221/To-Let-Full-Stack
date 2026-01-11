@@ -57,8 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/buy-credits', [CreditController::class, 'buy']);
     Route::get('/credits', [CreditController::class, 'credits']);
 
-    // ✅ ONLY HERE
+    // ✅ PAYMENT ROUTES
     Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment']);
+    Route::post('/initiate-order-payment', [PaymentController::class, 'initiateOrderPayment']);
 
     Route::get('/transactions/{id}', [PaymentController::class, 'transactionStatus']);
 

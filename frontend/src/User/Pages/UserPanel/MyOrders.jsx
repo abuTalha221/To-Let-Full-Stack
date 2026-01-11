@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaEye, FaPlus } from "react-icons/fa";
+import OrderPaymentModal from "./OrderPaymentModal";
+import Invoice from "./Invoice";
 
 const statusColor = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -30,11 +32,49 @@ const formatDate = (date) => {
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // ✅ Handle payment callback
+  useEffect(() => {
+    const status = searchParams.get("payment_status");
+    const message = searchParams.get("message");
+
+    if (status) {
+      const decodedMessage = message ? decodeURIComponent(message) : null;
+
+      if (status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Payment Successful!",
+          text: decodedMessage || "Order payment completed",
+          confirmButtonColor: "#e45716",
+          didClose: () => {
+            navigate("/user/orders", { replace: true });
+            fetchOrders(); // Refresh orders
+          }
+        });
+      } else if (status === "failed") {
+        Swal.fire({
+          icon: "error",
+          title: "Payment Failed",
+          text: decodedMessage || "Your payment could not be processed",
+          confirmButtonColor: "#e45716",
+          didClose: () => {
+            navigate("/user/orders", { replace: true });
+          }
+        });
+      }
+    }
+  }, [searchParams, navigate]);
 
   const fetchOrders = async () => {
     try {
@@ -47,23 +87,87 @@ const MyOrders = () => {
     }
   };
 
-  const handlePayNow = (orderId) => {
-    Swal.fire({
-      title: "Proceed to Payment?",
-      text: "You will be redirected to payment page.",
-      icon: "info",
-      confirmButtonText: "Pay Now",
-      showCancelButton: true,
-      confirmButtonColor: "#e45716",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate(`/payment-processing?order_id=${orderId}`);
-      }
-    });
+  const handlePayNow = (order) => {
+    setSelectedOrder(order);
+    setShowPaymentModal(true);
   };
 
-  const handleViewOrder = (orderId) => {
-    navigate(`/user/orders/${orderId}`);
+  const handleProceedToPayment = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      setPaymentLoading(true);
+
+      Swal.fire({
+        title: "Processing payment...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      // ✅ API call to initiate order payment
+      const res = await api.post("/initiate-order-payment", {
+        order_id: selectedOrder.id,
+      });
+
+      Swal.close();
+
+      const data = res?.data || {};
+
+      console.log("SSLCommerz Response:", data);
+
+      // ✅ Get gateway URL
+      const gateway =
+        data.GatewayPageURL ||
+        data.gateway_url ||
+        data.gateway_redirect ||
+        data.redirect_url ||
+        null;
+
+      if (!gateway) {
+        throw new Error(
+          data?.failedreason ||
+          data?.message ||
+          "No gateway URL returned"
+        );
+      }
+
+      // ✅ Redirect to payment gateway
+      window.location.href = gateway;
+    } catch (err) {
+      Swal.close();
+
+      console.error("Payment Error:", err);
+
+      const detail =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Payment initiation failed";
+
+      Swal.fire({
+        icon: "error",
+        title: "Payment initiation failed",
+        text: detail,
+        confirmButtonColor: "#e45716",
+      });
+
+      setPaymentLoading(false);
+      setShowPaymentModal(false);
+    }
+  };
+
+  const handleViewInvoice = async (order) => {
+    try {
+      setLoading(true);
+      // Fetch fresh order details (includes transactions)
+      const res = await api.get(`/my-orders/${order.id}`);
+      const fullOrder = res.data.order;
+      setSelectedOrder(fullOrder);
+      setShowInvoice(true);
+    } catch (err) {
+      Swal.fire('Error', 'Failed to load invoice', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreateOrder = () => {
@@ -150,7 +254,7 @@ const MyOrders = () => {
 
                 <div>
                   <p className="text-base font-semibold text-gray-800">
-                    Budget : {order.budget} BDT
+                    Budget : {order.budget} BDT · Payable: {order.cost || order.budget} BDT
                   </p>
                   <p className="text-sm text-gray-500">
                     Created : {formatDate(order.created_at)}
@@ -169,7 +273,7 @@ const MyOrders = () => {
                 <div className="flex gap-2">
                   {order.payment_status !== "paid" && (
                     <button
-                      onClick={() => handlePayNow(order.id)}
+                      onClick={() => handlePayNow(order)}
                       className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer
                         ${
                           order.payment_status === "failed"
@@ -184,11 +288,11 @@ const MyOrders = () => {
                   )}
 
                   <button
-                    onClick={() => handleViewOrder(order.id)}
+                    onClick={() => handleViewInvoice(order)}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
                   >
                     <FaEye />
-                    View Order
+                    View Invoice
                   </button>
                 </div>
               </div>
@@ -196,6 +300,29 @@ const MyOrders = () => {
           ))}
         </div>
       )}
+
+      {/* ✅ Order Payment Modal */}
+      <OrderPaymentModal
+        order={selectedOrder}
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setSelectedOrder(null);
+          setPaymentLoading(false);
+        }}
+        onConfirm={handleProceedToPayment}
+        isLoading={paymentLoading}
+      />
+
+      {/* ✅ Invoice Modal */}
+      <Invoice
+        order={selectedOrder}
+        isOpen={showInvoice}
+        onClose={() => {
+          setShowInvoice(false);
+          setSelectedOrder(null);
+        }}
+      />
     </div>
   );
 };

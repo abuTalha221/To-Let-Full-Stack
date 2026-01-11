@@ -190,10 +190,10 @@ const OrderPropertyNow = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
-  // cost from selected package
+  // cost from selected package (fixed package price — 1000 BDT)
   const cost = useMemo(() => {
     const p = packages.find((x) => x.id === form.package);
-    return p ? p.price : 0;
+    return p ? p.price : 1000; // default to 1000 if package not found
   }, [form.package]);
 
   // subareas for currently selected area (empty array if none)
@@ -260,9 +260,31 @@ const OrderPropertyNow = () => {
         text: "Proceed to payment",
         confirmButtonText: "Pay Now",
         confirmButtonColor: "#e45716",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          navigate(`/payment-processing?order_id=${res.data.order.id}`);
+          // Directly initiate order payment and redirect to gateway (same-window)
+          try {
+            Swal.fire({
+              title: "Processing payment...",
+              allowOutsideClick: false,
+              didOpen: () => Swal.showLoading(),
+            });
+
+            const payRes = await api.post('/initiate-order-payment', { order_id: res.data.order.id });
+            Swal.close();
+
+            const data = payRes?.data || {};
+            const gateway = data.GatewayPageURL || data.gateway_url || data.gateway_redirect || data.redirect_url || null;
+
+            if (!gateway) {
+              throw new Error(data?.failedreason || data?.message || 'No gateway URL returned');
+            }
+
+            window.location.href = gateway;
+          } catch (e) {
+            Swal.close();
+            Swal.fire({ icon: 'error', title: 'Payment initiation failed', text: e?.response?.data?.message || e?.message || 'Try again later' });
+          }
         }
       });
     } catch (err) {

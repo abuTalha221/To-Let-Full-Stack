@@ -21,9 +21,11 @@ class OrderController extends Controller
             'move_in_month' => 'required|integer',
             'budget' => 'required|integer',
             'package_code' => 'required|string',
-            'cost' => 'required|integer',
             'contact_phone' => 'required|string',
         ]);
+
+        // Enforce cost based on package_code (server-side authoritative)
+        $cost = $this->packageCost($request->package_code);
 
         $order = Order::create([
             'user_id' => auth()->id(), 
@@ -39,7 +41,7 @@ class OrderController extends Controller
             'details' => $request->details,
 
             'package_code' => $request->package_code,
-            'cost' => $request->cost,
+            'cost' => $cost,
 
             'contact_name' => $request->contact_name,
             'contact_phone' => $request->contact_phone,
@@ -83,7 +85,9 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::where('id', $id)
+        // Return order with related transactions so invoice can show payment history
+        $order = Order::with('transactions')
+            ->where('id', $id)
             ->where('user_id', auth()->id())
             ->first();
 
@@ -96,5 +100,23 @@ class OrderController extends Controller
         return response()->json([
             'order' => $order
         ]);
+    }
+
+    /**
+     * Map package code to server-side cost. Default: 1000 BDT
+     */
+    private function packageCost($packageCode)
+    {
+        // For now the platform uses a fixed package price of 1000 BDT for all packages.
+        // This method centralizes pricing in case it needs to change later.
+        $default = 1000;
+
+        $prices = [
+            'basic' => 1000,
+            'standard' => 1000,
+            'premium' => 1000,
+        ];
+
+        return $prices[$packageCode] ?? $default;
     }
 }

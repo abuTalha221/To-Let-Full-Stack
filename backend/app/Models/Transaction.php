@@ -16,6 +16,7 @@ class Transaction extends Model
         'transaction_id',
         'status',
         'raw_response',
+        'order_id',
     ];
 
     protected $casts = [
