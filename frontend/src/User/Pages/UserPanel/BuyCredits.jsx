@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import Swal from "sweetalert2";
 import api from "../../../api";
+import PaymentInvoiceModal from "./PaymentInvoiceModal";
 
 const packages = [
   { id: 1, name: "Starter Package", credits: 100, price: 100 },
@@ -12,34 +13,77 @@ const packages = [
 
 const BuyCredits = () => {
   const [loadingId, setLoadingId] = useState(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const handleBuy = async (pkg) => {
-    const confirm = await Swal.fire({
-      title: `Buy ${pkg.name}?`,
-      text: `${pkg.credits} credits — ${pkg.price} BDT`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Proceed to Pay",
-      confirmButtonColor: "#e45716",
-    });
+  // ✅ Handle payment callback status on page load
+  useEffect(() => {
+    const status = searchParams.get("payment_status");
+    const message = searchParams.get("message");
 
-    if (!confirm.isConfirmed) return;
+    // Decode message if it's URL encoded
+    const decodedMessage = message ? decodeURIComponent(message) : null;
+
+    if (status === "success") {
+      Swal.fire({
+        icon: "success",
+        title: "Payment Successful!",
+        text: decodedMessage || "Credits have been added to your account",
+        confirmButtonColor: "#e45716",
+        didClose: () => {
+          // Clean up URL after alert is closed
+          navigate("/user/credits", { replace: true });
+        }
+      });
+    } else if (status === "failed") {
+      Swal.fire({
+        icon: "error",
+        title: "Payment Failed",
+        text: decodedMessage || "Your payment could not be processed",
+        confirmButtonColor: "#e45716",
+        didClose: () => {
+          // Clean up URL after alert is closed
+          navigate("/user/credits", { replace: true });
+        }
+      });
+    } else if (status === "cancelled") {
+      Swal.fire({
+        icon: "warning",
+        title: "Payment Cancelled",
+        text: decodedMessage || "You have cancelled the payment",
+        confirmButtonColor: "#e45716",
+        didClose: () => {
+          // Clean up URL after alert is closed
+          navigate("/user/credits", { replace: true });
+        }
+      });
+    }
+  }, [searchParams, navigate]);
+
+  const handleBuy = (pkg) => {
+    setSelectedPackage(pkg);
+    setShowInvoiceModal(true);
+  };
+
+  const handleProceedToPayment = async () => {
+    if (!selectedPackage) return;
 
     try {
-      setLoadingId(pkg.id);
+      setLoadingId(selectedPackage.id);
 
       Swal.fire({
-        title: "Initiating payment...",
+        title: "Processing payment...",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
 
       // ✅ Payload sent to backend
       const payload = {
-        package_name: pkg.name,
-        credits: pkg.credits,
-        amount: Number(pkg.price),
+        package_name: selectedPackage.name,
+        credits: selectedPackage.credits,
+        amount: Number(selectedPackage.price),
       };
 
       // ✅ API call
@@ -49,7 +93,7 @@ const BuyCredits = () => {
 
       const data = res?.data || {};
 
-      // ✅ LOG FULL SSL RESPONSE (VERY IMPORTANT)
+      // ✅ LOG FULL SSL RESPONSE
       console.log("SSLCommerz Response:", data);
 
       // ✅ Get gateway URL
@@ -69,18 +113,8 @@ const BuyCredits = () => {
         );
       }
 
-      // ✅ Redirect to SSLCommerz
-      const opened = window.open(gateway, "_blank");
-      if (!opened) {
-        window.location.href = gateway;
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Payment started",
-        text: "Payment page opened successfully",
-        confirmButtonColor: "#e45716",
-      });
+      // ✅ Redirect to SSLCommerz (same window, not new tab)
+      window.location.href = gateway;
 
     } catch (err) {
       Swal.close();
@@ -98,13 +132,14 @@ const BuyCredits = () => {
         text: detail,
         confirmButtonColor: "#e45716",
       });
-    } finally {
+
       setLoadingId(null);
+      setShowInvoiceModal(false);
     }
   };
 
   return (
-    <div className="p-10">
+    <div className="p-10 min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold text-gray-800 mb-10 text-center">
         Buy Credits
       </h1>
@@ -152,6 +187,19 @@ const BuyCredits = () => {
           </div>
         ))}
       </div>
+
+      {/* ✅ Invoice Modal */}
+      <PaymentInvoiceModal
+        pkg={selectedPackage}
+        isOpen={showInvoiceModal}
+        onClose={() => {
+          setShowInvoiceModal(false);
+          setSelectedPackage(null);
+          setLoadingId(null);
+        }}
+        onConfirm={handleProceedToPayment}
+        isLoading={loadingId !== null}
+      />
     </div>
   );
 };
