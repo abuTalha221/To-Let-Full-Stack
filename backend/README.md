@@ -56,6 +56,14 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Payment testing note
+
+- SSLCommerz sandbox initiation (redirecting to the gateway page) can be tested locally without exposing your backend.
+- **However**, callbacks that SSLCommerz sends to your backend (success/fail/IPN) require a publicly reachable URL to be delivered automatically. If you do not want to expose your local server, you can still:
+  - Manually complete the sandbox flow and check the transaction in your app's `transactions` table, or
+  - Use a public test endpoint to verify callbacks (optional).
+- In short: ngrok/tunnel is *optional* — use it only if you need automatic callbacks delivered to your local server during testing.
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

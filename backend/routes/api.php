@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\AdminPropertyController;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC ROUTES
+| PUBLIC API ROUTES
 |--------------------------------------------------------------------------
 */
 
@@ -28,57 +28,59 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
-/* 🌍 PUBLIC PROPERTY ROUTES */
 Route::get('/public-properties', [PublicPropertyController::class, 'index']);
 Route::get('/public-properties/{id}', [PublicPropertyController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
-| USER ROUTES (AUTH REQUIRED)
+| SSLCommerz CALLBACK ROUTES (PUBLIC, NO AUTH, NO CSRF)
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/payment/success', [PaymentController::class, 'success']);
+Route::post('/payment/fail', [PaymentController::class, 'fail']);
+Route::post('/payment/cancel', [PaymentController::class, 'cancel']);
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED API ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    // 🔐 AUTH
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // 👤 PROFILE
     Route::get('/user/profile', [UserController::class, 'profile']);
     Route::post('/user/change-password', [UserController::class, 'changePassword']);
 
-    // 💰 CREDITS
     Route::post('/buy-credits', [CreditController::class, 'buy']);
     Route::get('/credits', [CreditController::class, 'credits']);
 
-    // 💳 PAYMENT
+    // ✅ ONLY HERE
     Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment']);
-    // GET transaction status for frontend polling
+
     Route::get('/transactions/{id}', [PaymentController::class, 'transactionStatus']);
 
-    // 📦 ORDERS
     Route::post('/order-property', [OrderController::class, 'store']);
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::get('/my-orders/{id}', [OrderController::class, 'show']);
 
-    // 🏠 PROPERTIES (USER)
     Route::post('/properties', [PropertyController::class, 'store']);
     Route::get('/my-properties', [PropertyController::class, 'myProperties']);
     Route::get('/properties/{id}', [PropertyController::class, 'show']);
     Route::put('/properties/{id}', [PropertyController::class, 'update']);
     Route::patch('/properties/{id}/toggle-status', [PropertyController::class, 'toggleStatus']);
 
-    // 🔓 UNLOCK PROPERTY CONTACT & ADDRESS
     Route::get('/properties/{id}/unlock-status', [PropertyUnlockController::class, 'status']);
     Route::post('/properties/{id}/unlock', [PropertyUnlockController::class, 'unlock']);
 
-    // 🔓 USER UNLOCKED LISTINGS
     Route::get('/user/unlocked', [PropertyUnlockController::class, 'index']);
 });
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES (SEPARATE GUARD)
+| ADMIN ROUTES
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:admin')->prefix('admin')->group(function () {
@@ -87,12 +89,10 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/me', [AdminAuthController::class, 'me']);
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
 
-    // 📦 ORDERS
     Route::get('/orders', [AdminOrderController::class, 'index']);
     Route::get('/orders/{id}', [AdminOrderController::class, 'show']);
     Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
 
-    // 🏠 PROPERTIES
     Route::get('/properties', [AdminPropertyController::class, 'index']);
     Route::get('/properties/{id}', [AdminPropertyController::class, 'show']);
     Route::patch('/properties/{id}/status', [AdminPropertyController::class, 'updateStatus']);

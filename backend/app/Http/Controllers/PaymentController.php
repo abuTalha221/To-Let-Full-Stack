@@ -2,447 +2,117 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    protected $store_id;
-    protected $store_passwd;
-    protected $is_sandbox;
-
-    public function __construct()
-    {
-        $config = config('services.sslcommerz', []);
-
-        $this->store_id = $config['store_id'] ?? env('SSL_COMMERZ_STORE_ID', env('SSLCOMMERZ_STORE_ID'));
-        $this->store_passwd = $config['store_password'] ?? env('SSL_COMMERZ_STORE_PASSWORD', env('SSLCOMMERZ_STORE_PASSWORD'));
-
-        $sandboxFromConfig = $config['sandbox'] ?? null;
-        $sandboxFromEnv = env('SSL_COMMERZ_SANDBOX', env('SSLCOMMERZ_SANDBOX', true));
-        $this->is_sandbox = filter_var($sandboxFromConfig ?? $sandboxFromEnv, FILTER_VALIDATE_BOOLEAN);
-
-        Log::info('PaymentController initialized', [
-            'store_id_found' => !empty($this->store_id),
-            'is_sandbox' => $this->is_sandbox,
-        ]);
-    }
-
     public function initiatePayment(Request $request)
     {
+        // ✅ 1. Validate frontend data
         $request->validate([
             'package_name' => 'required|string',
-            'credits' => 'required|integer|min:1',
-            'amount' => 'required|numeric|min:0.01',
-            'cus_phone' => 'nullable|string',
+            'credits' => 'required|integer',
+            'amount' => 'required|numeric|min:1',
         ]);
 
-        $user = $request->user();
-        $packageName = $request->package_name;
-        $credits = (int) $request->credits;
-        $amount = (float) $request->amount;
-
-        $tran_id = 'tolet_' . Str::random(8) . '_' . time();
-
-        // create transaction record (pending) - include transaction_id immediately
-        $transaction = Transaction::create([
-            'user_id' => $user->id ?? null,
-            'package_name' => $packageName,
-            'credits' => $credits,
-            'amount' => $amount,
-            'status' => 'pending',
-            'payment_gateway' => 'sslcommerz',
-            'transaction_id' => $tran_id,
-        ]);
-
-        $cusPhone = $request->input('cus_phone') ?? ($user->phone ?? null);
-        if (empty($cusPhone)) {
-            $cusPhone = '01700000000';
+        // ✅ 2. Check credentials first (VERY IMPORTANT)
+        if (!env('SSLCOMMERZ_STORE_ID') || !env('SSLCOMMERZ_STORE_PASSWORD')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'SSLCommerz credentials missing in .env',
+            ], 500);
         }
 
+        // ✅ 3. Frontend URL for redirects
+        $frontendUrl = 'http://localhost:5173';
+
+        // ✅ 4. Prepare post data with CORRECT callback URLs
         $post_data = [
-            'store_id'        => $this->store_id,
-            'store_passwd'    => $this->store_passwd,
-            'total_amount'    => round($amount, 2),
-            'currency'        => 'BDT',
-            'tran_id'         => $tran_id,
+            'store_id'     => env('SSLCOMMERZ_STORE_ID'),
+            'store_passwd' => env('SSLCOMMERZ_STORE_PASSWORD'),
+            'total_amount' => (float) $request->amount,
+            'currency'     => 'BDT',
+            'tran_id'      => 'TXN_' . time(),
 
-            'success_url' => rtrim(config('app.url'), '/') . '/payment/success',
-            'fail_url'    => rtrim(config('app.url'), '/') . '/payment/fail',
-            'cancel_url'  => rtrim(config('app.url'), '/') . '/payment/cancel',
-            'emi_option'  => 0,
+            // ✅ CRITICAL: Routes in api.php have /api prefix
+            'success_url' => 'http://127.0.0.1:8000/api/payment/success',
+            'fail_url'    => 'http://127.0.0.1:8000/api/payment/fail',
+            'cancel_url'  => 'http://127.0.0.1:8000/api/payment/cancel',
 
-            'cus_name'     => $user->name ?? $request->input('cus_name', 'Guest'),
-            'cus_email'    => $user->email ?? $request->input('cus_email', 'guest@example.com'),
-            'cus_add1'     => $request->input('cus_add1', ''),
-            'cus_city'     => $request->input('cus_city', ''),
-            'cus_country'  => $request->input('cus_country', 'Bangladesh'),
-            'cus_phone'    => $cusPhone,
-
+            // ✅ REQUIRED even for digital products
             'shipping_method' => 'NO',
-            'ship_name'       => $user->name ?? $request->input('ship_name', ''),
-            'ship_add1'       => $request->input('ship_add1', ''),
-            'ship_city'       => $request->input('ship_city', ''),
-            'ship_country'    => $request->input('ship_country', 'Bangladesh'),
 
-            'product_name'     => $packageName,
-            'product_category' => $request->input('product_category', 'Credits'),
-            'product_profile'  => $request->input('product_profile', 'non-physical'),
+            // customer
+            'cus_name'    => 'Test User',
+            'cus_email'   => 'test@test.com',
+            'cus_phone'   => '01700000000',
+            'cus_add1'    => 'Dhaka',
+            'cus_city'    => 'Dhaka',
+            'cus_country' => 'Bangladesh',
 
-            'value_a'      => $transaction->id,
+            // product
+            'product_name'     => $request->package_name,
+            'product_category' => 'Credits',
+            'product_profile'  => 'non-physical',
         ];
 
-        $api_url = $this->is_sandbox
+        // ✅ 5. Sandbox or Live URL
+        $api_url = env('SSLCOMMERZ_SANDBOX', true)
             ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
             : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php';
 
-        Log::info('SSLCommerz initiate payload', [
-            'api_url' => $api_url,
-            'post_data_preview' => [
-                'store_id_present' => !empty($post_data['store_id']),
-                'total_amount' => $post_data['total_amount'],
-                'tran_id' => $post_data['tran_id'],
-                'cus_phone' => $post_data['cus_phone'],
-            ],
-        ]);
-
-        // Ensure credentials are present before attempting to contact the gateway
-        if (empty($this->store_id) || empty($this->store_passwd)) {
-            Log::error('SSLCommerz credentials missing', [
-                'store_id_present' => !empty($this->store_id),
-                'store_passwd_present' => !empty($this->store_passwd),
-            ]);
-
-            $transaction->update(['status' => 'failed', 'raw_response' => 'missing_store_credentials']);
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Payment gateway not configured',
-            ], 500);
-        }
-
+        // ✅ 6. Call SSLCommerz (sandbox fix applied)
         try {
-            if ($this->is_sandbox) {
-                $response = Http::withoutVerifying()->timeout(15)->asForm()->post($api_url, $post_data);
-            } else {
-                $response = Http::timeout(15)->asForm()->post($api_url, $post_data);
-            }
-        } catch (\Throwable $e) {
-            Log::error('SSLCommerz HTTP error', ['exception' => $e->getMessage()]);
-            $transaction->update(['status' => 'failed', 'raw_response' => $e->getMessage()]);
+            $response = Http::withoutVerifying()
+                ->timeout(20)
+                ->asForm()
+                ->post($api_url, $post_data);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to connect to payment gateway',
-                'detail' => $e->getMessage(),
+                'message' => 'SSLCommerz connection failed',
+                'error' => $e->getMessage(),
             ], 500);
         }
 
+        // ✅ 7. Handle failure
         if ($response->failed()) {
-            $transaction->update([
-                'status' => 'failed',
-                'raw_response' => $response->body(),
-            ]);
-
-            Log::error('SSLCommerz initiate failed', [
-                'response' => $response->body(),
-                'transaction_id' => $tran_id,
-            ]);
-
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to connect to payment gateway',
-                'detail' => $response->body(),
+                'message' => 'SSLCommerz request failed',
+                'response' => $response->body(),
             ], 500);
         }
 
-        $data = $response->json();
-
-        $transaction->update([
-            'raw_response' => $data,
-        ]);
-
-        if (!empty($data['GatewayPageURL'])) {
-            // primary: tell frontend to go directly to gateway URL
-            return response()->json([
-                'status' => true,
-                'GatewayPageURL' => $data['GatewayPageURL'],
-                // also provide consistent, lower-case keys for clients that expect them
-                'gateway_url' => $data['GatewayPageURL'],
-                'gateway_redirect' => rtrim(config('app.url'), '/') . '/payment/redirect/' . $transaction->id,
-                'redirect_url' => rtrim(config('app.url'), '/') . '/payment/redirect/' . $transaction->id,
-                'transaction_id' => $transaction->id,
-            ]);
-        }
-
-        $transaction->update(['status' => 'failed']);
-
-        return response()->json([
-            'status' => false,
-            'message' => $data,
-        ], 500);
+        // ✅ 8. Return FULL SSL response to frontend
+        return response()->json($response->json());
     }
 
-    public function redirectToGateway(Request $request, $id)
-    {
-        $transaction = Transaction::find($id);
-        if (! $transaction) {
-            abort(404, 'Transaction not found');
-        }
-
-        if ($request->user() && $transaction->user_id && $request->user()->id !== $transaction->user_id) {
-            abort(403, 'Forbidden');
-        }
-
-        $raw = $transaction->raw_response ?? [];
-        $gatewayUrl = null;
-        if (is_array($raw) && !empty($raw['GatewayPageURL'])) {
-            $gatewayUrl = $raw['GatewayPageURL'];
-        } elseif (is_string($raw)) {
-            $decoded = json_decode($raw, true);
-            if (is_array($decoded) && !empty($decoded['GatewayPageURL'])) {
-                $gatewayUrl = $decoded['GatewayPageURL'];
-            }
-        }
-
-        if (! $gatewayUrl) {
-            return view('payment.no-gateway', ['transaction' => $transaction]);
-        }
-
-        return view('payment.redirect', ['gateway' => $gatewayUrl, 'transaction' => $transaction]);
-    }
-
+    // ✅ SUCCESS: Backend receives callback, then redirects to frontend
     public function success(Request $request)
     {
-        // TEMP DEBUG: log everything so we can inspect incoming callback (remove later)
-        Log::info('DEBUG: ssl success callback received', [
-            'method' => $request->method(),
-            'path' => $request->path(),
-            'full_url' => $request->fullUrl(),
-            'headers' => $request->headers->all(),
-            'cookies' => $request->cookies->all(),
-            'body' => $request->all(),
-            'raw' => $request->getContent(),
-        ]);
+        // TODO: Save transaction data here before redirecting
+        // $transactionId = $request->tran_id;
+        // $amount = $request->amount;
+        // Save to database...
 
-        $val_id = $request->input('val_id');
-        $tran_id = $request->input('tran_id');
-        $internalId = $request->input('value_a') ?? null;
-
-        // if no val_id, we still log and redirect to failure (validator cannot run)
-        if (! $val_id) {
-            Log::warning('SSLCommerz success callback missing val_id', [
-                'tran_id' => $tran_id,
-                'value_a' => $internalId,
-                'payload' => $request->all(),
-            ]);
-            return redirect()->to(env('FRONTEND_URL') . '/payment-failed?reason=no_val_id');
-        }
-
-        $verify = $this->verifyTransaction($val_id);
-
-        if (! $verify['ok']) {
-            return redirect()->to(env('FRONTEND_URL') . '/payment-failed?reason=' . urlencode($verify['message']));
-        }
-
-        $transaction = null;
-        if ($internalId) {
-            $transaction = Transaction::find($internalId);
-        }
-        if (! $transaction && $tran_id) {
-            $transaction = Transaction::where('transaction_id', $tran_id)->first();
-        }
-
-        if (! $transaction) {
-            return redirect()->to(env('FRONTEND_URL') . '/payment-failed?reason=transaction_not_found');
-        }
-
-        $validated = $verify['data'] ?? [];
-        $paidAmount = isset($validated['amount']) ? floatval($validated['amount']) : (isset($validated['total_amount']) ? floatval($validated['total_amount']) : null);
-        $paidCurrency = $validated['currency'] ?? ($validated['currency_type'] ?? 'BDT');
-
-        if ($paidAmount !== null) {
-            $expected = floatval($transaction->amount);
-            if (abs($paidAmount - $expected) > 0.01 || strtoupper($paidCurrency) !== strtoupper($transaction->currency ?? 'BDT')) {
-                Log::warning('Payment validation mismatch', [
-                    'transaction_id' => $transaction->id,
-                    'expected_amount' => $expected,
-                    'paid_amount' => $paidAmount,
-                    'expected_currency' => $transaction->currency ?? 'BDT',
-                    'paid_currency' => $paidCurrency,
-                    'validation' => $validated,
-                ]);
-
-                $transaction->update(['status' => 'failed', 'raw_response' => $validated]);
-
-                return redirect()->to(env('FRONTEND_URL') . '/payment-failed?reason=' . urlencode('payment_amount_mismatch'));
-            }
-        }
-
-        $transaction->update([
-            'status' => 'success',
-            'raw_response' => $validated,
-            'transaction_id' => $tran_id,
-        ]);
-
-        $user = $transaction->user;
-        if ($user) {
-            $user->credits = ($user->credits ?? 0) + $transaction->credits;
-            $user->save();
-        }
-
-        return redirect()->to(env('FRONTEND_URL') . '/payment-success?credits=' . $transaction->credits);
+        return redirect('http://localhost:5173/payment-success');
     }
 
+    // ❌ FAIL: Backend receives callback, then redirects to frontend
     public function fail(Request $request)
     {
-        $tran_id = $request->input('tran_id');
-        $internalId = $request->input('value_a');
-
-        if ($internalId) {
-            $t = Transaction::find($internalId);
-            if ($t) $t->update(['status' => 'failed', 'raw_response' => $request->all()]);
-        }
-
-        if ($tran_id && empty($internalId)) {
-            $t = Transaction::where('transaction_id', $tran_id)->first();
-            if ($t) $t->update(['status' => 'failed', 'raw_response' => $request->all()]);
-        }
-
-        return redirect()->to(env('FRONTEND_URL') . '/payment-failed');
+        // TODO: Log failed transaction
+        
+        return redirect('http://localhost:5173/payment-failed');
     }
 
+    // ❌ CANCEL: Backend receives callback, then redirects to frontend
     public function cancel(Request $request)
     {
-        return $this->fail($request);
-    }
-
-    public function ipn(Request $request)
-    {
-        $val_id = $request->input('val_id');
-
-        if (! $val_id) {
-            Log::warning('IPN missing val_id', ['payload' => $request->all()]);
-            return response('Missing val_id', 400);
-        }
-
-        $verify = $this->verifyTransaction($val_id);
-        if (! $verify['ok']) {
-            Log::warning('IPN validation failed', ['message' => $verify['message'], 'payload' => $request->all()]);
-            return response('Validation failed', 400);
-        }
-
-        $data = $verify['data'] ?? [];
-        $internalId = $data['value_a'] ?? $request->input('value_a');
-        $tran_id = $data['tran_id'] ?? $request->input('tran_id');
-
-        $transaction = null;
-        if ($internalId) {
-            $transaction = Transaction::find($internalId);
-        }
-        if (! $transaction && $tran_id) {
-            $transaction = Transaction::where('transaction_id', $tran_id)->first();
-        }
-
-        if (! $transaction) {
-            Log::warning('IPN transaction not found', ['val_id' => $val_id, 'payload' => $request->all()]);
-            return response('Transaction not found', 404);
-        }
-
-        $paidAmount = isset($data['amount']) ? floatval($data['amount']) : (isset($data['total_amount']) ? floatval($data['total_amount']) : null);
-        $paidCurrency = $data['currency'] ?? ($data['currency_type'] ?? 'BDT');
-        $expected = floatval($transaction->amount);
-
-        if ($paidAmount !== null) {
-            if (abs($paidAmount - $expected) > 0.01 || strtoupper($paidCurrency) !== strtoupper($transaction->currency ?? 'BDT')) {
-                Log::warning('IPN payment validation mismatch', [
-                    'transaction_id' => $transaction->id,
-                    'expected_amount' => $expected,
-                    'paid_amount' => $paidAmount,
-                    'expected_currency' => $transaction->currency ?? 'BDT',
-                    'paid_currency' => $paidCurrency,
-                    'validation' => $data,
-                ]);
-
-                $transaction->update(['status' => 'failed', 'raw_response' => $data]);
-                return response('Payment mismatch', 400);
-            }
-        }
-
-        $transaction->update(['status' => 'success', 'raw_response' => $data, 'transaction_id' => $tran_id]);
-
-        $user = $transaction->user;
-        if ($user) {
-            $user->credits = ($user->credits ?? 0) + $transaction->credits;
-            $user->save();
-        }
-
-        return response('IPN processed', 200);
-    }
-
-    // API: get transaction status for frontend polling
-    public function transactionStatus(Request $request, $id)
-    {
-        $transaction = \App\Models\Transaction::find($id);
-        if (! $transaction) {
-            return response()->json(['status' => false, 'message' => 'Transaction not found'], 404);
-        }
-
-        // authorize: ensure the authenticated user owns the transaction
-        $user = $request->user();
-        if ($user && $transaction->user_id && $user->id !== $transaction->user_id) {
-            return response()->json(['status' => false, 'message' => 'Forbidden'], 403);
-        }
-
-        return response()->json([
-            'status' => true,
-            'transaction' => [
-                'id' => $transaction->id,
-                'status' => $transaction->status,
-                'credits' => $transaction->credits,
-                'amount' => $transaction->amount,
-                'transaction_id' => $transaction->transaction_id,
-                'raw_response' => $transaction->raw_response,
-            ],
-        ]);
-    }
-
-    protected function verifyTransaction($val_id)
-    {
-        if (!$val_id) {
-            return ['ok' => false, 'message' => 'No val_id supplied', 'data' => null];
-        }
-
-        $validator_url = $this->is_sandbox
-            ? 'https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php'
-            : 'https://securepay.sslcommerz.com/validator/api/validationserverAPI.php';
-
-        try {
-            $response = Http::timeout(15)->get($validator_url, [
-                'val_id' => $val_id,
-                'store_id' => $this->store_id,
-                'store_passwd' => $this->store_passwd,
-                'v' => 1,
-                'format' => 'json',
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('SSLCommerz validation HTTP error', ['exception' => $e->getMessage()]);
-            return ['ok' => false, 'message' => 'Validation API failed', 'data' => null];
-        }
-
-        if ($response->failed()) {
-            Log::error('SSLCommerz validation failed', ['body' => $response->body()]);
-            return ['ok' => false, 'message' => 'Validation API failed', 'data' => null];
-        }
-
-        $data = $response->json();
-
-        if (isset($data['status']) && in_array(strtoupper($data['status']), ['VALID', 'VALIDATED', 'SUCCESS'])) {
-            return ['ok' => true, 'message' => 'Validated', 'data' => $data];
-        }
-
-        return ['ok' => false, 'message' => ($data['status'] ?? 'not_valid'), 'data' => $data];
+        // TODO: Log cancelled transaction
+        
+        return redirect('http://localhost:5173/payment-cancel');
     }
 }

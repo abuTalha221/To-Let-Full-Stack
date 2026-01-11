@@ -12,7 +12,6 @@ const packages = [
 
 const BuyCredits = () => {
   const [loadingId, setLoadingId] = useState(null);
-
   const navigate = useNavigate();
 
   const handleBuy = async (pkg) => {
@@ -36,66 +35,69 @@ const BuyCredits = () => {
         didOpen: () => Swal.showLoading(),
       });
 
+      // ✅ Payload sent to backend
       const payload = {
         package_name: pkg.name,
-        product_name: pkg.name,
-        product_category: "Credits",
-        product_profile: "non-physical",
         credits: pkg.credits,
         amount: Number(pkg.price),
       };
 
+      // ✅ API call
       const res = await api.post("/initiate-ssl-payment", payload);
 
       Swal.close();
 
       const data = res?.data || {};
-      const txId = data.transaction_id || null;
-      const gateway = data.gateway_redirect || data.redirect_url || data.GatewayPageURL || data.gateway_url || null;
 
-      if (gateway) {
-        // Try to open in new tab; fallback to same-tab if blocked
-        const opened = window.open(gateway, "_blank");
-        if (!opened) {
-          window.location.href = gateway;
-        }
+      // ✅ LOG FULL SSL RESPONSE (VERY IMPORTANT)
+      console.log("SSLCommerz Response:", data);
 
-        Swal.fire({
-          icon: "success",
-          title: "Payment started",
-          html: txId ? `Transaction started (ID: <b>${txId}</b>). Payment page opened in a new tab.` : 'Payment started. Payment page opened in a new tab.',
-          showCancelButton: true,
-          confirmButtonText: "View Status",
-          cancelButtonText: "Close",
-          confirmButtonColor: "#e45716",
-        }).then((r) => {
-          if (r.isConfirmed && txId) {
-            navigate(`/payment-processing?transaction_id=${txId}`);
-          }
-        });
+      // ✅ Get gateway URL
+      const gateway =
+        data.GatewayPageURL ||
+        data.gateway_url ||
+        data.gateway_redirect ||
+        data.redirect_url ||
+        null;
 
-        return;
+      // ❌ If no gateway URL, show real error
+      if (!gateway) {
+        throw new Error(
+          data?.failedreason ||
+          data?.message ||
+          "No gateway URL returned"
+        );
       }
 
-      throw new Error("No gateway URL returned");
-    } catch (err) {
-      Swal.close();
-      const detail = err?.response?.data?.message || err?.message || "Payment initiation failed";
+      // ✅ Redirect to SSLCommerz
+      const opened = window.open(gateway, "_blank");
+      if (!opened) {
+        window.location.href = gateway;
+      }
 
-      const retry = await Swal.fire({
-        icon: "error",
-        title: "Payment initiation failed",
-        text: detail,
-        showCancelButton: true,
-        confirmButtonText: "Retry",
-        cancelButtonText: "Cancel",
+      Swal.fire({
+        icon: "success",
+        title: "Payment started",
+        text: "Payment page opened successfully",
         confirmButtonColor: "#e45716",
       });
 
-      if (retry.isConfirmed) {
-        // retry
-        handleBuy(pkg);
-      }
+    } catch (err) {
+      Swal.close();
+
+      console.error("Payment Error:", err);
+
+      const detail =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Payment initiation failed";
+
+      await Swal.fire({
+        icon: "error",
+        title: "Payment initiation failed",
+        text: detail,
+        confirmButtonColor: "#e45716",
+      });
     } finally {
       setLoadingId(null);
     }
@@ -114,42 +116,34 @@ const BuyCredits = () => {
             style={{ animationDelay: `${index * 80}ms` }}
             className="
               group bg-[#f8f6f6] rounded-2xl p-8 flex flex-col items-center
-              shadow-lg
-              hover:shadow-2xl hover:-translate-y-2
-              transition-all duration-300 ease-out
-              animate-fadeIn
+              shadow-lg hover:shadow-2xl hover:-translate-y-2
+              transition-all duration-300
             "
           >
-            {/* Title */}
-            <h2 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-[#EC733B] transition">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">
               {pkg.name}
             </h2>
 
-            {/* Credits */}
             <div className="flex items-center gap-2 text-gray-600 mb-2">
               <FaCheckCircle className="text-green-500 text-lg" />
-              <span className="font-medium">
-                {pkg.credits} Credits
-              </span>
+              <span>{pkg.credits} Credits</span>
             </div>
 
-            {/* Price */}
             <p className="text-3xl font-bold text-[#EC733B] my-4">
               {pkg.price} BDT
             </p>
 
-            {/* Button */}
             <button
               onClick={() => handleBuy(pkg)}
               disabled={loadingId === pkg.id}
               className={`
                 w-full py-2.5 rounded-xl font-semibold text-white
                 bg-[#EC733B] hover:bg-[#d9612c]
-                transition-all duration-300 cursor-pointer
+                transition
                 ${
                   loadingId === pkg.id
                     ? "opacity-60 cursor-not-allowed"
-                    : "hover:scale-[1.02]"
+                    : ""
                 }
               `}
             >
