@@ -53,13 +53,7 @@ const menu = [
         name: "Payments",
         link: "/admin/payments",
         icon: <MdPayment />,
-      },
-      {
-        id: 6,
-        name: "Locations",
-        link: "/admin/locations",
-        icon: <MdLocationOn />,
-      },
+      }, 
     ],
   },
   {

@@ -6,7 +6,6 @@ import AdminLogin from "../Admin/Pages/Auth/AdminLogin";
 // 🧱 Admin Layout & Pages
 import AdminLayout from "../Admin/Layout/AdminLayout";
 import AdminDashboard from "../Admin/Pages/AdminDashboard";
-import AdminLocationManager from "../Admin/Pages/AdminLocationManager";
 import AdminOrders from "../Admin/Pages/Orders/AdminOrders";
 import AdminOrderDetails from "../Admin/Pages/Orders/AdminOrderDetails";
 import Properties from "../Admin/Pages/Properties/AdminProperties";
@@ -37,7 +36,6 @@ const AdminRoutes = () => {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="orders/:id" element={<AdminOrderDetails />} />
-        <Route path="locations" element={<AdminLocationManager />} />
         <Route path="properties" element={<Properties />}/>
         <Route path="properties/:id" element={<AdminPropertyDetails />} />
       </Route>
