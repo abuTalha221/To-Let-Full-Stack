@@ -66,11 +66,6 @@ const dhakaLocations = {
   Wari: ["Narinda", "Sayedabad", "Tikatuli"],
 };
 
-function slugify(s) {
-  if (!s) return "";
-  return s.toString().trim().toLowerCase().replace(/&/g, "-and-").replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "").replace(/\-+/g, "-");
-}
-
 const SearchModal = ({ isOpen, onClose, onNavigate }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -120,34 +115,39 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
 
   if (!isOpen) return null;
 
-  function submitHandler(e) {
+  const categoryOptions = [
+    { id: "1", label: "Family" },
+    { id: "2", label: "Bachelor" },
+    { id: "3", label: "Office" },
+    { id: "4", label: "Sublet" },
+    { id: "5", label: "Hostel" },
+  ];
+
+  async function submitHandler(e) {
     e.preventDefault();
 
-    // property id direct
+    // direct property lookup by id -> go to details page
     if (q && q.trim()) {
       const id = q.trim();
-      const url = ``;
+      const url = `/property-post/${encodeURIComponent(id)}`;
       if (onNavigate) return onNavigate(url);
       window.location.href = url;
       return;
     }
 
     if (!area) {
-      alert("Please select an area.");
+      alert("Please select an area to search.");
       return;
     }
 
-    const base = "";
-    const path = ["dhaka", "dhaka", slugify(area)].join("/");
+    const params = new URLSearchParams();
+    params.set("area", area);
+    if (subarea) params.set("subarea", subarea);
+    if (category) params.set("category", category);
 
-    const params = [];
-    if (category) params.push(`category=${encodeURIComponent(category)}`);
-    if (subarea) params.push(`subarea=${encodeURIComponent(subarea)}`);
-
-    const finalUrl = `${base}/${path}${params.length ? "?" + params.join("&") : ""}`;
-
-    if (onNavigate) return onNavigate(finalUrl);
-    window.location.href = finalUrl;
+    const url = `/search-results?${params.toString()}`;
+    if (onNavigate) return onNavigate(url);
+    window.location.href = url;
   }
 
   return (
@@ -194,14 +194,14 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <div className="flex flex-wrap gap-2">
-              {["family","bachelor","office","sublet","commercial space"].map((c) => (
+              {categoryOptions.map((c) => (
                 <button
-                  key={c}
+                  key={c.id}
                   type="button"
-                  onClick={() => setCategory(category === c ? "" : c)}
-                  className={`px-3 py-2 rounded-lg border text-sm ${category === c ? "bg-orange-100 border-orange-400 shadow-sm" : "bg-white/90"}`}
+                  onClick={() => setCategory(category === c.id ? "" : c.id)}
+                  className={`px-3 py-2 rounded-lg border text-sm ${category === c.id ? "bg-orange-100 border-orange-400 shadow-sm" : "bg-white/90"}`}
                 >
-                  <span className="capitalize">{c}</span>
+                  <span className="capitalize">{c.label}</span>
                 </button>
               ))}
             </div>

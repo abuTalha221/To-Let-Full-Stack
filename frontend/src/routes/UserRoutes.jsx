@@ -14,6 +14,7 @@ import Login from "../User/Pages/Registration/Login";
 import VerifyOtp from "../User/Pages/Registration/VerifyOtp";
 import FindHouse from "../User/Pages/FindHouse";
 import OrderHome from "../User/Pages/OrderHome";
+import SearchResults from "../User/Pages/SearchResults";
 
 /* Public Property Pages */
 import PublicProperties from "../User/Pages/PublicProperties/PublicProperties";
@@ -61,6 +62,7 @@ const UserRoutes = () => {
 
         <Route path="/find-house" element={<FindHouse />} />
         <Route path="/order-home" element={<OrderHome />} />
+        <Route path="/search-results" element={<SearchResults />} />
 
         {/* 💳 PAYMENT */}
         <Route path="/payment/:orderId" element={<Payment />} />
