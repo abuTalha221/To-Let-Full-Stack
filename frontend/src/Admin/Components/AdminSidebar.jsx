@@ -10,7 +10,6 @@ import {
   MdShoppingCart,
   MdLocationOn,
   MdAssessment,
-  MdSettings,
   MdLogout,
   MdPayment,
 } from "react-icons/md";
@@ -64,17 +63,6 @@ const menu = [
         name: "Reports",
         link: "/admin/reports",
         icon: <MdAssessment />,
-      },
-    ],
-  },
-  {
-    section: "SYSTEM",
-    items: [
-      {
-        id: 8,
-        name: "Settings",
-        link: "/admin/settings",
-        icon: <MdSettings />,
       },
     ],
   },

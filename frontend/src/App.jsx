@@ -5,8 +5,12 @@ import "aos/dist/aos.css";
 
 import UserRoutes from "./routes/UserRoutes";
 import AdminRoutes from "./routes/AdminRoutes";
+import useBlockedUserCheck from "./hooks/useBlockedUserCheck";
 
 const App = () => {
+  // 🔒 Check if user is blocked periodically
+  useBlockedUserCheck();
+
   useEffect(() => {
     AOS.init({
       offset: 100,

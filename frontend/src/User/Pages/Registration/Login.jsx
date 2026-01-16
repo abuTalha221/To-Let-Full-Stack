@@ -10,6 +10,23 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Check if user was blocked while using the app
+  React.useEffect(() => {
+    const blockedFlag = localStorage.getItem("userBlocked");
+    if (blockedFlag) {
+      Swal.fire({
+        icon: "warning",
+        title: "Account Blocked",
+        html: `<div class="text-left">
+          <p class="mb-3">Your account has been blocked by the ToLet team.</p>
+          <p class="text-sm text-gray-600">If you believe this is a mistake, please contact our support team at <strong>support@tolet.com</strong></p>
+        </div>`,
+        confirmButtonColor: "#e45716",
+      });
+      localStorage.removeItem("userBlocked");
+    }
+  }, []);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -49,6 +66,18 @@ const Login = () => {
             confirmButtonColor: "#e45716",
           });
           if (result.isConfirmed) navigate("/register");
+
+        } else if (status === 403 && data.blocked) {
+          // 🔒 Account is blocked
+          Swal.fire({
+            icon: "warning",
+            title: "Account Blocked",
+            html: `<div class="text-left">
+              <p class="mb-3">${data.message}</p>
+              <p class="text-sm text-gray-600">If you believe this is a mistake, please contact our support team.</p>
+            </div>`,
+            confirmButtonColor: "#e45716",
+          });
 
         } else if (status === 401) {
           Swal.fire({

@@ -20,7 +20,8 @@ class User extends Authenticatable
         'email_otp_expires_at',
         'email_verified_at',
         'is_admin',
-        'credits', // ✅ ADD THIS
+        'is_blocked',
+        'credits',
     ];
 
     // 🔒 Hidden fields

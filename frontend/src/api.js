@@ -29,4 +29,31 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// 🔒 CHECK IF USER IS BLOCKED ON API RESPONSE
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Check if user is blocked (403 status with blocked flag)
+    if (error.response?.status === 403 && error.response?.data?.blocked) {
+      // 🔴 USER IS BLOCKED
+      const isAdminRoute = error.config?.url?.startsWith("/admin");
+      
+      if (!isAdminRoute) {
+        // Clear user data
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user");
+        delete api.defaults.headers.common.Authorization;
+        
+        // Set flag for blocked message
+        localStorage.setItem("userBlocked", "true");
+        
+        // Redirect to login
+        window.location.href = "/login";
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 export default api;

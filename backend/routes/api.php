@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminPropertyController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +32,17 @@ Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
 Route::get('/public-properties', [PublicPropertyController::class, 'index']);
 Route::get('/public-properties/{id}', [PublicPropertyController::class, 'show']);
+
+// Test mail route
+Route::get('/test-mail', function() {
+    try {
+        $otp = '123456';
+        \Illuminate\Support\Facades\Mail::to('test@example.com')->send(new \App\Mail\EmailOtpMail($otp));
+        return response()->json(['status' => true, 'message' => 'Mail sent! Check Mailtrap inbox.']);
+    } catch (\Exception $e) {
+        return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+    }
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +103,11 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/me', [AdminAuthController::class, 'me']);
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
 
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::get('/users/{id}', [AdminUserController::class, 'show']);
+    Route::patch('/users/{id}/block', [AdminUserController::class, 'block']);
+    Route::patch('/users/{id}/unblock', [AdminUserController::class, 'unblock']);
+
     Route::get('/orders', [AdminOrderController::class, 'index']);
     Route::get('/orders/{id}', [AdminOrderController::class, 'show']);
     Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
@@ -98,4 +116,8 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/properties/{id}', [AdminPropertyController::class, 'show']);
     Route::patch('/properties/{id}/status', [AdminPropertyController::class, 'updateStatus']);
     Route::delete('/properties/{id}', [AdminPropertyController::class, 'destroy']);
+
+    Route::get('/payments', [AdminPaymentController::class, 'index']);
+    Route::get('/payments/{id}', [AdminPaymentController::class, 'show']);
+    Route::get('/payments-stats/gateway', [AdminPaymentController::class, 'gatewayStats']);
 });

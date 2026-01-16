@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use App\Services\BrevoMailService;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmailOtpMail;
+use App\Mail\RegistrationSuccessMail;
 
 class AuthController extends Controller
 {
@@ -51,12 +53,8 @@ class AuthController extends Controller
             ]);
         }
 
-        // ✅ SEND OTP USING BREVO API
-        BrevoMailService::sendOtp(
-            $user->email,
-            $user->name,
-            $otp
-        );
+        // ✅ SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
+        Mail::to($user->email)->send(new EmailOtpMail($otp));
 
         return response()->json([
             'status' => true,
@@ -97,6 +95,9 @@ class AuthController extends Controller
             'email_otp' => null,
             'email_otp_expires_at' => null,
         ]);
+
+        // ✅ SEND WELCOME EMAIL
+        Mail::to($user->email)->send(new RegistrationSuccessMail($user));
 
         // 🔑 Login token
         $token = $user->createToken('tolet_token')->plainTextToken;
@@ -142,12 +143,8 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
-        // ✅ SEND OTP USING BREVO API
-        BrevoMailService::sendOtp(
-            $user->email,
-            $user->name,
-            $otp
-        );
+        // ✅ SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
+        Mail::to($user->email)->send(new EmailOtpMail($otp));
 
         return response()->json([
             'status' => true,
@@ -179,6 +176,15 @@ class AuthController extends Controller
                 'status' => false,
                 'message' => 'Incorrect password',
             ], 401);
+        }
+
+        // 🔒 CHECK IF USER IS BLOCKED
+        if ($user->is_blocked) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your account has been blocked. Please contact support at support@tolet.com for assistance.',
+                'blocked' => true,
+            ], 403);
         }
 
         if (!$user->email_verified_at) {
@@ -216,9 +222,20 @@ class AuthController extends Controller
     // =============================
     public function user(Request $request)
     {
+        $user = $request->user();
+        
+        // 🔒 CHECK IF USER IS BLOCKED
+        if ($user->is_blocked) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your account has been blocked by the ToLet team.',
+                'blocked' => true,
+            ], 403);
+        }
+        
         return response()->json([
             'status' => true,
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 }
