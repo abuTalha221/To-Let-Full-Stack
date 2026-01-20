@@ -5,7 +5,6 @@ import Image3 from "../../../assets/homep/Home3.png";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Properties from "../Properties";
 import Categories from "../Categories";
 import Navbar from "../../Components/Navbar";
 import PublicProperties from "../PublicProperties/PublicProperties";
@@ -52,15 +51,12 @@ const Home = () => {
   return (
     <div>
       <Navbar />
-
-      {/* Hero Slider */}
       <div className="pt-[90px] w-full min-h-[80vh] bg-gray-100 flex items-center">
         <div className="container mx-auto p-6 sm:p-12">
           <Slider {...settings}>
             {ImageList.map((data) => (
               <div key={data.id}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-8">
-                  {/* Text Section */}
                   <div className="flex flex-col justify-center gap-4 text-center sm:text-left order-2 sm:order-1">
                     <h1
                       data-aos="zoom-in"
@@ -73,13 +69,14 @@ const Home = () => {
                       {data.description}
                     </p>
                     <div data-aos="fade-up">
-                      <button className="bg-gradient-to-r from-[#EC733B] to-[#e45716] hover:scale-105 duration-300 text-white py-2 px-6 rounded-full cursor-pointer">
-                        Book Now
+                      <button
+                       onClick={() => window.scrollTo({ top: 900, behavior: "smooth" })}
+                       className="bg-gradient-to-r from-[#EC733B] to-[#e45716] hover:scale-105 duration-300 text-white py-2 px-6 rounded-full cursor-pointer">
+                        Search Now
                       </button>
                     </div>
                   </div>
 
-                  {/* Image Section */}
                   <div
                     data-aos="zoom-in"
                     data-aos-once="true"
@@ -100,7 +97,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ⭐ NEW TEXT SECTION ADDED BELOW ⭐ */}
       <div
         data-aos="fade-up"
         className="container mx-auto px-6 py-12 text-center"
@@ -116,7 +112,7 @@ const Home = () => {
         </p>
 
         <button
-          onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}
+          onClick={() => window.scrollTo({ top: 900, behavior: "smooth" })}
           className="mt-6 bg-[#EC733B] hover:bg-[#e45716] text-white px-8 py-3 rounded-full shadow-md hover:shadow-lg transition cursor-pointer"
         >
           Start Searching

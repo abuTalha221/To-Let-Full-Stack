@@ -110,7 +110,7 @@ const Footer = () => {
               <li className="flex items-start group">
                 <FaMapMarkerAlt className="text-orange-500 mr-3 mt-1 flex-shrink-0" />
                 <span className="text-sm text-gray-400 group-hover:text-orange-500 transition">
-                  123 Main Street<br/>Dhaka, Bangladesh
+                  Bamnertek Main Road<br/>Dhaka, Bangladesh
                 </span>
               </li>
               <li className="flex items-center group">
@@ -121,8 +121,8 @@ const Footer = () => {
               </li>
               <li className="flex items-center group">
                 <FaEnvelope className="text-orange-500 mr-3 flex-shrink-0" />
-                <a href="mailto:tolet@gmail.com" className="text-sm text-gray-400 hover:text-orange-500 transition">
-                  tolet@gmail.com
+                <a href="mailto:team.tolet@gmail.com" className="text-sm text-gray-400 hover:text-orange-500 transition">
+                  team.tolet@gmail.com
                 </a>
               </li>
             </ul>

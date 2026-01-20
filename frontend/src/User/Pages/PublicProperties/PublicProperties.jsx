@@ -27,7 +27,6 @@ const PublicProperties = () => {
       const res = await api.get("/public-properties", { signal });
       setProperties(res.data.properties || []);
     } catch (err) {
-      // Ignore abort/cancel errors
       if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
       console.error("Failed to load public properties:", err);
       setError("Failed to load properties. Please try again.");
@@ -36,7 +35,7 @@ const PublicProperties = () => {
     }
   }; 
 
-  /* ---------- PAGINATION LOGIC ---------- */
+
   const indexOfLastProperty = currentPage * propertiesPerPage;
   const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
   const currentProperties = properties.slice(
@@ -51,7 +50,6 @@ const PublicProperties = () => {
   return (
     <div className="w-full bg-gray-100 py-12 mt-[70px]">
       <div className="container mx-auto px-4">
-        {/* HEADING */}
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800">
             All Available Rentals
@@ -61,7 +59,6 @@ const PublicProperties = () => {
           </p>
         </div>
 
-        {/* PROPERTIES GRID */}
         {error && (
           <div className="text-center text-red-600 mb-4">
             <p>{error}</p>
@@ -99,7 +96,6 @@ const PublicProperties = () => {
           </div>
         )}
 
-        {/* PAGINATION */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-10 flex-wrap">
             <button
@@ -114,12 +110,11 @@ const PublicProperties = () => {
               Previous
             </button>
 
-            {/* Mobile: Show only current page */}
+
             <span className="md:hidden px-4 py-2 bg-gray-100 rounded text-sm">
               Page {currentPage} of {totalPages}
             </span>
 
-            {/* Desktop: Show all page numbers */}
             <div className="hidden md:flex gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (number) => (

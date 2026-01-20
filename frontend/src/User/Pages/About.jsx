@@ -1,9 +1,9 @@
 import React from "react";
 import { FaStar, FaCheck, FaLock, FaClock, FaHeadset, FaMobile, FaHome } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // <-- Import navigate
+import { useNavigate } from "react-router-dom"; 
 
 const About = () => {
-  const navigate = useNavigate(); // <-- Initialize navigate function
+  const navigate = useNavigate(); 
 
   const features = [
     { icon: <FaLock className="text-2xl text-orange-500" />, title: "Secure Transactions", desc: "Safe and encrypted property deals" },
@@ -12,12 +12,6 @@ const About = () => {
     { icon: <FaMobile className="text-2xl text-orange-500" />, title: "Easy to Use", desc: "User-friendly mobile & web platform" },
   ];
 
-  const stats = [
-    { number: "50K+", label: "Active Users" },
-    { number: "10K+", label: "Properties" },
-    { number: "5K+", label: "Successful Rentals" },
-    { number: "99%", label: "Satisfaction Rate" },
-  ];
 
   const steps = [
     { step: 1, title: "Search", desc: "Browse through thousands of verified properties" },
@@ -63,7 +57,7 @@ const About = () => {
       comment: "Super easy to navigate and the listings are updated regularly. Excellent experience!",
     },
     {
-      name: "Carlos H.",
+      name: "Masud Rana",
       rating: 5,
       comment: "Customer support is top-notch. They answered all my queries patiently. Highly recommend!",
     },
@@ -71,7 +65,7 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-10 mt-18">
-      {/* Hero Section */}
+     
       <section className="max-w-6xl mx-auto mb-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-12 text-white shadow-lg">
         <h1 className="text-5xl font-bold mb-4">Welcome to To-Let</h1>
         <p className="text-xl opacity-90">Your trusted platform for finding the perfect home, office, or commercial space</p>
