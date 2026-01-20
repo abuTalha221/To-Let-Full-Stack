@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminPropertyController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Admin\AdminReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,4 +121,8 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/payments', [AdminPaymentController::class, 'index']);
     Route::get('/payments/{id}', [AdminPaymentController::class, 'show']);
     Route::get('/payments-stats/gateway', [AdminPaymentController::class, 'gatewayStats']);
+
+    Route::get('/reports', [AdminReportController::class, 'index']);
+    Route::get('/reports/transactions', [AdminReportController::class, 'transactions']);
+    Route::get('/reports/export', [AdminReportController::class, 'export']);
 });

@@ -31,6 +31,14 @@ const UserLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       <UserSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col">

@@ -20,8 +20,10 @@ const UserSidebar = ({ sidebarOpen }) => {
   return (
     <aside
       className={`${
-        sidebarOpen ? "w-60" : "w-20"
-      } bg-white shadow-lg p-5 flex flex-col transition-all duration-300 overflow-y-auto h-screen`}
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0 ${
+        sidebarOpen ? "w-60" : "md:w-20 w-60"
+      } bg-white shadow-lg p-5 flex flex-col transition-all duration-300 overflow-y-auto h-screen fixed md:relative z-40`}
     >
       <nav className="flex flex-col gap-2 font-medium text-gray-700 mt-4">
         

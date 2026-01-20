@@ -223,10 +223,10 @@ const FindHouse = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-20">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Find House</h1>
-        <p className="text-sm text-gray-600">Search property listings — try the filters or type a keyword.</p>
+        <h1 className="text-xl md:text-2xl font-semibold">Find House</h1>
+        <p className="text-xs md:text-sm text-gray-600">Search property listings — try the filters or type a keyword.</p>
       </div>
 
       {/* SEARCH / FILTER AREA */}
@@ -311,14 +311,14 @@ const FindHouse = () => {
           </select>
         </div>
 
-        <div className="flex items-center justify-between gap-3 mt-4">
-          <div className="text-sm text-gray-700">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4">
+          <div className="text-xs md:text-sm text-gray-700">
             <strong>{total}</strong> result{total !== 1 ? "s" : ""} found
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={clearFilters}
-              className="text-sm px-3 py-1 border rounded bg-gray-50 hover:bg-gray-100"
+              className="text-xs md:text-sm px-3 py-1 border rounded bg-gray-50 hover:bg-gray-100"
             >
               Clear filters
             </button>
@@ -371,8 +371,8 @@ const FindHouse = () => {
             </div>
 
             {/* pagination */}
-            <div className="mt-6 flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs md:text-sm text-gray-600">
                 Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
               </div>
 
@@ -380,15 +380,15 @@ const FindHouse = () => {
                 <button
                   onClick={prevPage}
                   disabled={page === 1}
-                  className={`px-3 py-1 rounded ${page === 1 ? "bg-gray-100 text-gray-400" : "bg-white border hover:bg-gray-50"}`}
+                  className={`px-3 py-1 rounded text-sm ${page === 1 ? "bg-gray-100 text-gray-400" : "bg-white border hover:bg-gray-50"}`}
                 >
                   Prev
                 </button>
-                <div className="px-3 py-1 border rounded bg-white">Page {page} / {lastPage}</div>
+                <div className="px-3 py-1 border rounded bg-white text-sm">Page {page} / {lastPage}</div>
                 <button
                   onClick={nextPage}
                   disabled={page === lastPage}
-                  className={`px-3 py-1 rounded ${page === lastPage ? "bg-gray-100 text-gray-400" : "bg-white border hover:bg-gray-50"}`}
+                  className={`px-3 py-1 rounded text-sm ${page === lastPage ? "bg-gray-100 text-gray-400" : "bg-white border hover:bg-gray-50"}`}
                 >
                   Next
                 </button>

@@ -113,60 +113,60 @@ const ManageUsers = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       {/* 🔷 HEADER */}
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-800">
+        <h1 className="text-xl md:text-2xl font-extrabold text-gray-800">
           Manage Users
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs md:text-sm text-gray-500 mt-1">
           View and manage all registered users
         </p>
       </div>
 
       {/* 🔷 STATS */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <p className="text-sm text-gray-500">Total Users</p>
-          <h3 className="text-2xl font-bold text-gray-800 mt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+        <div className="bg-white rounded-xl shadow-md p-3 md:p-4">
+          <p className="text-xs md:text-sm text-gray-500">Total Users</p>
+          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mt-1">
             {users.length}
           </h3>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <p className="text-sm text-gray-500">Active</p>
-          <h3 className="text-2xl font-bold text-green-600 mt-1">
+        <div className="bg-white rounded-xl shadow-md p-3 md:p-4">
+          <p className="text-xs md:text-sm text-gray-500">Active</p>
+          <h3 className="text-xl md:text-2xl font-bold text-green-600 mt-1">
             {users.filter((u) => !u.is_blocked).length}
           </h3>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <p className="text-sm text-gray-500">Blocked</p>
-          <h3 className="text-2xl font-bold text-red-600 mt-1">
+        <div className="bg-white rounded-xl shadow-md p-3 md:p-4">
+          <p className="text-xs md:text-sm text-gray-500">Blocked</p>
+          <h3 className="text-xl md:text-2xl font-bold text-red-600 mt-1">
             {users.filter((u) => u.is_blocked).length}
           </h3>
         </div>
       </div>
 
       {/* 🔷 FILTERS & SEARCH */}
-      <div className="bg-white rounded-xl shadow-md p-4 flex flex-col sm:flex-row gap-4">
+      <div className="bg-white rounded-xl shadow-md p-3 md:p-4 flex flex-col sm:flex-row gap-3 md:gap-4">
         {/* Search */}
-        <div className="flex-1 flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-          <MdSearch className="text-gray-400" />
+        <div className="flex-1 flex items-center gap-2 bg-gray-50 px-3 md:px-4 py-2 rounded-lg">
+          <MdSearch className="text-gray-400 text-lg" />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent outline-none w-full text-sm"
+            className="bg-transparent outline-none w-full text-xs md:text-sm"
           />
         </div>
 
         {/* Filter */}
-        <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-          <MdFilterList className="text-gray-400" />
+        <div className="flex items-center gap-2 bg-gray-50 px-3 md:px-4 py-2 rounded-lg">
+          <MdFilterList className="text-gray-400 text-lg" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-transparent outline-none text-sm"
+            className="bg-transparent outline-none text-xs md:text-sm"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -178,25 +178,25 @@ const ManageUsers = () => {
       {/* 🔷 USERS TABLE */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {filteredUsers.length === 0 ? (
-          <p className="text-center py-8 text-gray-500">No users found</p>
+          <p className="text-center py-8 text-gray-500 text-sm">No users found</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs md:text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left font-semibold text-gray-700">
                     User ID
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left font-semibold text-gray-700">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left font-semibold text-gray-700">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left font-semibold text-gray-700">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-700">
+                  <th className="px-3 md:px-6 py-2 md:py-3 text-left font-semibold text-gray-700">
                     Joined
                   </th>
                   <th className="px-6 py-3 text-left font-semibold text-gray-700">

@@ -183,16 +183,16 @@ const MyOrders = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-6 print-hide">
-        <h2 className="text-3xl font-extrabold text-gray-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 print-hide">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800">
           My Orders
         </h2>
 
         <button
           onClick={handleCreateOrder}
-          className="flex items-center gap-2 bg-[#e45716] hover:bg-[#d35f25] text-white px-5 py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition cursor-pointer"
+          className="flex items-center gap-2 bg-[#e45716] hover:bg-[#d35f25] text-white px-4 md:px-5 py-2 md:py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition cursor-pointer text-sm md:text-base"
         >
           <FaPlus className="text-sm" />
           Create Order
@@ -204,19 +204,19 @@ const MyOrders = () => {
           You haven’t placed any orders yet.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {orders.map((order) => (
             <div
               key={order.id}
-              className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="bg-white rounded-2xl p-4 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               {/* HEADER */}
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">
+                  <p className="text-xs md:text-sm font-medium text-gray-500">
                     Order ID
                   </p>
-                  <h3 className="text-xl font-extrabold text-[#e45716] tracking-wide">
+                  <h3 className="text-lg md:text-xl font-extrabold text-[#e45716] tracking-wide">
                     {order.id}
                   </h3>
                 </div>
@@ -231,19 +231,19 @@ const MyOrders = () => {
               {/* INFO */}
               <div className="mt-5 space-y-4">
                 <div>
-                  <p className="text-base font-semibold text-gray-800">
+                  <p className="text-sm md:text-base font-semibold text-gray-800">
                     {order.area}, {order.district}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs md:text-sm text-gray-500">
                     {order.subarea || "Dhaka"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-base font-semibold text-gray-800">
+                  <p className="text-sm md:text-base font-semibold text-gray-800">
                     {order.room} Room for {order.category}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs md:text-sm text-gray-500">
                     From :{" "}
                     {new Date(
                       2025,
@@ -263,18 +263,18 @@ const MyOrders = () => {
               </div>
 
               {/* ACTIONS */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <span
                   className={`text-xs font-bold px-3 py-1 rounded-full ${paymentColor[order.payment_status]}`}
                 >
                   {order.payment_status}
                 </span>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   {order.payment_status !== "paid" && (
                     <button
                       onClick={() => handlePayNow(order)}
-                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer
+                      className={`px-3 md:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg transition cursor-pointer
                         ${
                           order.payment_status === "failed"
                             ? "bg-orange-500 hover:bg-orange-600 text-white"
@@ -289,7 +289,7 @@ const MyOrders = () => {
 
                   <button
                     onClick={() => handleViewInvoice(order)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
+                    className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 text-xs md:text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
                   >
                     <FaEye />
                     View Invoice

@@ -219,19 +219,19 @@ const ShowPost = () => {
     .join("/ ");
 
   return (
-    <div className="max-w-5xl mx-auto p-25 space-y-6 mt-5">
-      <h1 className="text-2xl font-bold text-orange-600 mb-2">
+    <div className="max-w-5xl mx-auto p-4 md:p-8 lg:p-10 space-y-6 mt-20 md:mt-5">
+      <h1 className="text-xl md:text-2xl font-bold text-orange-600 mb-2">
         {property.categoryText}
       </h1>
       {/* TITLE */}
-      <div className="bg-white rounded-xl shadow p-5">
-        <h1 className="text-lg font-bold text-orange-600">{property.title}</h1>
+      <div className="bg-white rounded-xl shadow p-4 md:p-5">
+        <h1 className="text-base md:text-lg font-bold text-orange-600">{property.title}</h1>
       </div>
 
       {/* IMAGES */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-white rounded-xl shadow p-4 md:p-5">
         <h2 className="font-semibold mb-3 text-orange-600">Images</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
           {property.images.map((img, index) => (
             <img
               key={img.id}
@@ -246,12 +246,12 @@ const ShowPost = () => {
       </div>
 
       {/* BASIC INFO */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-white rounded-xl shadow p-4 md:p-5">
         <h2 className="font-semibold mb-3 text-orange-600">
           Basic Information
         </h2>
 
-        <div className="flex flex-wrap gap-12 text-sm">
+        <div className="flex flex-wrap gap-4 md:gap-8 lg:gap-12 text-xs md:text-sm">
           <div className="flex items-center gap-2">
             <FaBed /> {property.bedroom} Bedroom
           </div>
@@ -278,7 +278,7 @@ const ShowPost = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-5 py-4 text-sm bg-white rounded-xl shadow p-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 px-4 md:px-5 py-4 text-xs md:text-sm bg-white rounded-xl shadow">
         <div>
           <p className="text-gray-400">PROPERTY ID</p>
           <p className="font-medium">{property.id}</p>
@@ -301,12 +301,12 @@ const ShowPost = () => {
       </div>
 
       {/* LOCATION */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-white rounded-xl shadow p-4 md:p-5">
         <h2 className="font-semibold mb-3 flex items-center gap-2 text-orange-600">
           <FaMapMarkerAlt /> Location
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 text-xs md:text-sm">
           <div>
             <p className="text-gray-400">Division</p>
             <p>{property.division}</p>
@@ -327,10 +327,10 @@ const ShowPost = () => {
       </div>
 
       {/* PRICE */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-white rounded-xl shadow p-4 md:p-5">
         <h2 className="font-semibold text-orange-600">Price</h2>
-        <p className="text-2xl font-bold text-orange-600">৳ {property.price}</p>
-        <p className="text-sm text-gray-500">{property.price_type}</p>
+        <p className="text-xl md:text-2xl font-bold text-orange-600">৳ {property.price}</p>
+        <p className="text-xs md:text-sm text-gray-500">{property.price_type}</p>
       </div>
 
       {/* PRICE INCLUDES */}
@@ -339,12 +339,12 @@ const ShowPost = () => {
         property.lift ||
         property.security ||
         property.electricity) && (
-        <div className="bg-white rounded-xl shadow p-5">
+        <div className="bg-white rounded-xl shadow p-4 md:p-5">
           <h2 className="font-semibold mb-2 flex items-center gap-2 text-orange-600">
             Price Includes
           </h2>
 
-          <ul className="text-sm space-y-1">
+          <ul className="text-xs md:text-sm space-y-1">
             {property.gas === 1 && (
               <li className="flex items-center gap-2">
                 {" "}
@@ -405,7 +405,7 @@ const ShowPost = () => {
         )}
 
         {!user && (
-          <div className="text-sm text-gray-600 space-y-3">
+          <div className="text-xs md:text-sm text-gray-600 space-y-3">
             <p>
               Please login for show the contact information. Please log in or
               register to view the full property details. We protect the privacy
@@ -413,17 +413,17 @@ const ShowPost = () => {
               users.
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => (window.location.href = "/login")}
-                className="px-4 py-2 bg-orange-600 text-white rounded"
+                className="px-4 py-2 bg-orange-600 text-white rounded text-sm"
               >
                 Login
               </button>
 
               <button
                 onClick={() => (window.location.href = "/register")}
-                className="px-4 py-2 border border-orange-600 text-orange-600 rounded"
+                className="px-4 py-2 border border-orange-600 text-orange-600 rounded text-sm"
               >
                 Register
               </button>
@@ -432,7 +432,7 @@ const ShowPost = () => {
         )}
 
         {user && !isOwner && !isUnlocked && (
-          <div className="text-sm text-gray-600 space-y-3">
+          <div className="text-xs md:text-sm text-gray-600 space-y-3">
             <p>
               Unlocking information requires <b>10 credits</b>.
             </p>
@@ -445,17 +445,17 @@ const ShowPost = () => {
                   via Card, Mobile banking, or Net banking.
                 </p>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => navigate('/user/credits')}
-                    className="px-4 py-2 bg-green-600 text-white rounded"
+                    className="px-4 py-2 bg-green-600 text-white rounded text-sm"
                   >
                     Buy Credits
                   </button>
 
                   <button
                     onClick={() => navigate('/user/credits')}
-                    className="px-4 py-2 border border-orange-600 text-orange-600 rounded"
+                    className="px-4 py-2 border border-orange-600 text-orange-600 rounded text-sm"
                   >
                     See Plans
                   </button>
@@ -465,7 +465,7 @@ const ShowPost = () => {
               <button
                 onClick={unlockInfo}
                 disabled={unlocking}
-                className="px-4 py-2 bg-orange-600 text-white rounded"
+                className="px-4 py-2 bg-orange-600 text-white rounded text-sm w-full sm:w-auto"
               >
                 {unlocking ? "Unlocking..." : "Unlock Information"}
               </button>

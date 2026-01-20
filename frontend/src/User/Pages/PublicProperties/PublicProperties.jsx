@@ -101,7 +101,7 @@ const PublicProperties = () => {
 
         {/* PAGINATION */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-10">
+          <div className="flex justify-center items-center gap-2 mt-10 flex-wrap">
             <button
               type="button"
               onClick={() =>
@@ -109,29 +109,37 @@ const PublicProperties = () => {
               }
               disabled={currentPage === 1}
               aria-label="Previous page"
-              className="px-4 py-2 bg-[#EC733B] hover:bg-[#d45e28] rounded disabled:opacity-60 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B]"
+              className="px-3 md:px-4 py-2 bg-[#EC733B] hover:bg-[#d45e28] rounded disabled:opacity-60 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B] text-sm md:text-base"
             >
               Previous
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (number) => (
-                <button
-                  type="button"
-                  key={number}
-                  onClick={() => setCurrentPage(number)}
-                  aria-label={`Page ${number}`}
-                  aria-current={currentPage === number ? "page" : undefined}
-                  className={`px-4 py-2 rounded ${
-                    currentPage === number
-                      ? "bg-[#EC733B] text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B]`}
-                >
-                  {number}
-                </button>
-              )
-            )}
+            {/* Mobile: Show only current page */}
+            <span className="md:hidden px-4 py-2 bg-gray-100 rounded text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            {/* Desktop: Show all page numbers */}
+            <div className="hidden md:flex gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    type="button"
+                    key={number}
+                    onClick={() => setCurrentPage(number)}
+                    aria-label={`Page ${number}`}
+                    aria-current={currentPage === number ? "page" : undefined}
+                    className={`px-4 py-2 rounded ${
+                      currentPage === number
+                        ? "bg-[#EC733B] text-white"
+                        : "bg-gray-200 hover:bg-gray-300"
+                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B]`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+            </div>
 
             <button
               type="button"
@@ -142,7 +150,7 @@ const PublicProperties = () => {
               }
               disabled={currentPage === totalPages}
               aria-label="Next page"
-              className="px-4 py-2 bg-[#EC733B] hover:bg-[#d45e28] rounded disabled:opacity-60 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B]"
+              className="px-3 md:px-4 py-2 bg-[#EC733B] hover:bg-[#d45e28] rounded disabled:opacity-60 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EC733B] text-sm md:text-base"
             >
               Next
             </button>

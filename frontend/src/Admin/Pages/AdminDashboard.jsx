@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import {
   MdPeople,
   MdHomeWork,
   MdShoppingCart,
-  MdAssessment,
+  MdPayment,
 } from "react-icons/md";
 
 /* 🔹 Status color map */
@@ -16,6 +17,7 @@ const statusColor = {
 };
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -48,31 +50,33 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-8 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50 min-h-screen">
       {/* 🔷 HEADER */}
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-800">
+        <h1 className="text-xl md:text-2xl font-extrabold text-gray-800">
           Dashboard
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs md:text-sm text-gray-500 mt-1">
           Real-time platform overview
         </p>
       </div>
 
       {/* 🔷 STATS CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard
           title="Total Users"
           value={stats.total_users}
           icon={<MdPeople />}
           color="bg-blue-50 text-blue-600"
+          onClick={() => navigate('/admin/manage-users')}
         />
 
         <StatCard
           title="Properties"
-          value="—"
+          value={stats.total_properties || 0}
           icon={<MdHomeWork />}
           color="bg-green-50 text-green-600"
+          onClick={() => navigate('/admin/properties')}
         />
 
         <StatCard
@@ -80,13 +84,15 @@ const AdminDashboard = () => {
           value={stats.total_orders}
           icon={<MdShoppingCart />}
           color="bg-purple-50 text-purple-600"
+          onClick={() => navigate('/admin/orders')}
         />
 
         <StatCard
-          title="Reports"
-          value="—"
-          icon={<MdAssessment />}
+          title="Payments"
+          value={stats.total_payments || 0}
+          icon={<MdPayment />}
           color="bg-orange-50 text-orange-600"
+          onClick={() => navigate('/admin/payments')}
         />
       </div>
 
@@ -152,17 +158,20 @@ const AdminDashboard = () => {
 };
 
 /* 🔹 Reusable Stat Card */
-const StatCard = ({ title, value, icon, color }) => (
-  <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-between hover:shadow-lg transition">
+const StatCard = ({ title, value, icon, color, onClick }) => (
+  <div 
+    onClick={onClick}
+    className="bg-white rounded-xl shadow-md p-4 md:p-6 flex items-center justify-between hover:shadow-lg transition cursor-pointer hover:scale-105 active:scale-95"
+  >
     <div>
-      <p className="text-sm text-gray-500">{title}</p>
-      <h3 className="text-2xl font-bold text-gray-800 mt-1">
+      <p className="text-xs md:text-sm text-gray-500">{title}</p>
+      <h3 className="text-xl md:text-2xl font-bold text-gray-800 mt-1">
         {value}
       </h3>
     </div>
 
     <div
-      className={`w-12 h-12 flex items-center justify-center rounded-full text-2xl ${color}`}
+      className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full text-xl md:text-2xl ${color}`}
     >
       {icon}
     </div>

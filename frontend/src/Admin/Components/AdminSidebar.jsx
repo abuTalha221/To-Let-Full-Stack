@@ -68,7 +68,7 @@ const menu = [
   },
 ];
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   // 🔴 LOGOUT HANDLER
@@ -116,7 +116,9 @@ const AdminSidebar = () => {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-white shadow-xl flex flex-col">
+    <aside className={`${
+      sidebarOpen ? "translate-x-0" : "-translate-x-full"
+    } lg:translate-x-0 w-64 min-h-screen bg-white shadow-xl flex flex-col fixed lg:relative z-40 transition-transform duration-300`}>
       {/* LOGO */}
       <div className="py-6 flex justify-center">
         <img src={logo} alt="ToLet Logo" className="h-12 object-contain" />

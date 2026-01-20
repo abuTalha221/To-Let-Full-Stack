@@ -120,14 +120,14 @@ const MyProperties = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-extrabold text-gray-800">My Properties</h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800">My Properties</h2>
 
         <button
           onClick={handleCreate}
-          className="flex items-center gap-2 bg-[#e45716] hover:bg-[#d35f25] text-white px-5 py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition cursor-pointer"
+          className="flex items-center gap-2 bg-[#e45716] hover:bg-[#d35f25] text-white px-4 md:px-5 py-2 md:py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition cursor-pointer text-sm md:text-base"
         >
           <FaPlus />
           Add Property
@@ -139,7 +139,7 @@ const MyProperties = () => {
           You haven’t posted any properties yet.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {properties.map((property) => {
             /* 🔥 FINAL STATUS DECISION */
             let finalStatus = "pending";
@@ -160,13 +160,13 @@ const MyProperties = () => {
             return (
               <div
                 key={property.id}
-                className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all hover:-translate-y-1"
+                className="bg-white rounded-2xl p-4 md:p-6 shadow-md hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 {/* HEADER */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-gray-500">Property ID</p>
-                    <h3 className="text-xl font-bold text-[#e45716]">
+                    <p className="text-xs md:text-sm text-gray-500">Property ID</p>
+                    <h3 className="text-lg md:text-xl font-bold text-[#e45716]">
                       {property.id}
                     </h3>
                   </div>
@@ -181,25 +181,25 @@ const MyProperties = () => {
 
                 {/* INFO */}
                 <div className="mt-5 space-y-2">
-                  <p className="text-lg font-semibold">
+                  <p className="text-base md:text-lg font-semibold">
                     {categoryMap[property.primary_category]}{" "}
                     {property.property_type}
                   </p>
 
-                  <p className="text-gray-600">
+                  <p className="text-sm md:text-base text-gray-600">
                     {property.subarea}, {property.area}
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs md:text-sm text-gray-500">
                     Created : {formatDate(property.created_at)}
                   </p>
                 </div>
 
                 {/* ACTIONS */}
-                <div className="mt-6 flex items-center gap-3">
+                <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <button
                     onClick={() => handleView(property.id)}
-                    className="px-4 py-2 bg-[#e45716] text-white rounded-lg flex items-center gap-2 cursor-pointer"
+                    className="px-3 md:px-4 py-2 bg-[#e45716] text-white rounded-lg flex items-center justify-center gap-2 cursor-pointer text-sm md:text-base"
                   >
                     <FaEye /> Show Post
                   </button>
@@ -211,7 +211,7 @@ const MyProperties = () => {
                           openAction === property.id ? null : property.id
                         )
                       }
-                      className="px-4 py-2 bg-[#e45716] text-white rounded-lg flex items-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto px-3 md:px-4 py-2 bg-[#e45716] text-white rounded-lg flex items-center justify-center gap-2 cursor-pointer text-sm md:text-base"
                     >
                       <FaEllipsisV /> Actions
                     </button>

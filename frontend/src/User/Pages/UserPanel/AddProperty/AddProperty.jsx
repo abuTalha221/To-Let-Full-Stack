@@ -178,10 +178,10 @@ const AddProperty = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-4 md:p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow"
+        className="bg-white p-4 md:p-6 rounded-xl shadow"
       >
         <BasicInfo form={form} onChange={handleChange} />
         <LocationInfo form={form} onChange={handleChange} />
@@ -200,11 +200,11 @@ const AddProperty = () => {
           toggle={toggle}
         />
 
-        <div className="mt-6 text-right">
+        <div className="mt-6 flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className={`px-6 py-2 rounded font-semibold text-white ${
+            className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-semibold text-white transition ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-orange-600 hover:bg-orange-500"

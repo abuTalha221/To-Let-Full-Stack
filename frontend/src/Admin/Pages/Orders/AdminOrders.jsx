@@ -63,13 +63,13 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* 🔹 HEADER */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-gray-800">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-extrabold text-gray-800">
           Orders Management
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs md:text-sm text-gray-500 mt-1">
           Latest orders shown first
         </p>
       </div>
@@ -77,17 +77,17 @@ const AdminOrders = () => {
       {/* 🔹 TABLE */}
       <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-xs md:text-sm">
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
               <tr>
-                <th className="px-5 py-4 text-left">Order ID</th>
-                <th className="px-5 py-4 text-left">User</th>
-                <th className="px-5 py-4 text-left">Location</th>
-                <th className="px-5 py-4 text-left">Budget</th>
-                <th className="px-5 py-4 text-left">Created At</th>
-                <th className="px-5 py-4 text-left">Status</th>
-                <th className="px-5 py-4 text-left">Payment</th>
-                <th className="px-5 py-4 text-left">Action</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">Order ID</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">User</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">Location</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">Budget</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left hidden lg:table-cell">Created At</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">Status</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left hidden md:table-cell">Payment</th>
+                <th className="px-3 md:px-5 py-3 md:py-4 text-left">Action</th>
               </tr>
             </thead>
 
@@ -99,34 +99,34 @@ const AdminOrders = () => {
                     ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                 >
                   {/* Order ID */}
-                  <td className="px-5 py-4 font-bold text-gray-800">
+                  <td className="px-3 md:px-5 py-3 md:py-4 font-bold text-gray-800">
                     #{order.id}
                   </td>
 
                   {/* User */}
-                  <td className="px-5 py-4">
+                  <td className="px-3 md:px-5 py-3 md:py-4">
                     User #{order.user_id ?? "Guest"}
                   </td>
 
                   {/* Location */}
-                  <td className="px-5 py-4">
+                  <td className="px-3 md:px-5 py-3 md:py-4">
                     {order.area}, {order.district}
                   </td>
 
                   {/* Budget */}
-                  <td className="px-5 py-4 font-semibold">
+                  <td className="px-3 md:px-5 py-3 md:py-4 font-semibold">
                     {order.budget} BDT
                   </td>
 
                   {/* Created Date */}
-                  <td className="px-5 py-4 text-gray-600">
+                  <td className="px-3 md:px-5 py-3 md:py-4 text-gray-600 hidden lg:table-cell">
                     {formatDate(order.created_at)}
                   </td>
 
                   {/* Status */}
-                  <td className="px-5 py-4">
+                  <td className="px-3 md:px-5 py-3 md:py-4">
                     <span
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold capitalize
+                      className={`px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs font-bold capitalize
                         ${statusColor[order.status]}`}
                     >
                       {order.status}
@@ -134,9 +134,9 @@ const AdminOrders = () => {
                   </td>
 
                   {/* Payment */}
-                  <td className="px-5 py-4">
+                  <td className="px-3 md:px-5 py-3 md:py-4 hidden md:table-cell">
                     <span
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold capitalize
+                      className={`px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs font-bold capitalize
                         ${paymentColor[order.payment_status]}`}
                     >
                       {order.payment_status}
@@ -144,12 +144,12 @@ const AdminOrders = () => {
                   </td>
 
                   {/* Action */}
-                  <td className="px-5 py-4">
+                  <td className="px-3 md:px-5 py-3 md:py-4">
                     <button
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
                       className="
-                        px-4 py-1.5 rounded-lg
-                        text-sm font-semibold
+                        px-3 md:px-4 py-1.5 rounded-lg
+                        text-xs md:text-sm font-semibold
                         text-[#e45716]
                         border border-[#e45716]
                         hover:bg-[#e45716]
@@ -167,7 +167,7 @@ const AdminOrders = () => {
         </div>
 
         {orders.length === 0 && (
-          <p className="text-center py-8 text-gray-500">
+          <p className="text-center py-8 text-gray-500 text-sm">
             No orders found
           </p>
         )}
