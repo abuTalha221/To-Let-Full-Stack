@@ -36,7 +36,7 @@ const Contact = () => {
     {
       icon: <FaPhone className="text-3xl text-orange-500" />,
       title: "Phone",
-      details: "+880 1234-567890"
+      details: "+8801791740135"
     },
     {
       icon: <FaEnvelope className="text-3xl text-orange-500" />,
@@ -194,25 +194,6 @@ const Contact = () => {
 
           {/* Additional Information */}
           <div className="lg:col-span-1">
-            {/* Working Hours */}
-            <div className="bg-white rounded-xl shadow-md p-8 mb-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Working Hours</h3>
-              <div className="space-y-3 text-gray-600">
-                <div className="flex justify-between">
-                  <span>Monday - Friday</span>
-                  <span className="font-semibold text-gray-800">9:00 AM - 6:00 PM</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Saturday</span>
-                  <span className="font-semibold text-gray-800">10:00 AM - 4:00 PM</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Sunday</span>
-                  <span className="font-semibold text-orange-500">Closed</span>
-                </div>
-              </div>
-            </div>
-
             {/* Follow Us */}
             <div className="bg-white rounded-xl shadow-md p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-6">Follow Us</h3>
