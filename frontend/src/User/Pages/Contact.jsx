@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaGlobe, FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 const Contact = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,6 +14,8 @@ const Contact = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -19,34 +24,51 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await api.post('/contact-messages', formData);
+      setSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
     {
       icon: <FaMapMarkerAlt className="text-3xl text-orange-500" />,
       title: "Address",
-      details: "Bamnertek Main Road, Uttara, Dhaka"
+      details: "Bamnertek Main Road, Uttara, Dhaka",
+      link: "https://maps.app.goo.gl/gUnRz3Nt3KwRQ5PL6",
+      isExternal: true
     },
-
     {
       icon: <FaPhone className="text-3xl text-orange-500" />,
       title: "Phone",
-      details: "+8801791740135"
+      details: "+8801791740135",
+      link: "https://wa.me/8801791740135",
+      isExternal: true
     },
     {
       icon: <FaEnvelope className="text-3xl text-orange-500" />,
       title: "Email",
-      details: "team.tolet@gmail.com"
+      details: "team.tolet@gmail.com",
+      link: "mailto:team.tolet@gmail.com",
+      isExternal: true
     },
     {
       icon: <FaGlobe className="text-3xl text-orange-500" />,
       title: "Website",
-      details: "www.tolet.com"
+      details: "www.tolet.com",
+      link: "/",
+      isExternal: false
     },
   ];
 
@@ -76,7 +98,11 @@ const Contact = () => {
       <div className="max-w-6xl mx-auto mb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {contactInfo.map((info, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+            <div 
+              key={index} 
+              onClick={() => info.isExternal ? window.open(info.link, '_blank') : navigate(info.link)}
+              className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer hover:scale-105 duration-300"
+            >
               <div className="flex justify-center mb-4">{info.icon}</div>
               <h3 className="text-lg font-semibold text-gray-800 text-center mb-2">{info.title}</h3>
               <p className="text-gray-600 text-center text-sm">{info.details}</p>
@@ -96,6 +122,12 @@ const Contact = () => {
             {submitted && (
               <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
                 ✓ Thank you! Your message has been received.
+              </div>
+            )}
+            
+            {error && (
+              <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                {error}
               </div>
             )}
 
@@ -185,9 +217,10 @@ const Contact = () => {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#EC733B] to-[#e45716] hover:scale-105 duration-300 text-white font-semibold py-3 px-6 rounded-lg transition"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-[#EC733B] to-[#e45716] hover:scale-105 duration-300 text-white font-semibold py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Message
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>

@@ -12,6 +12,7 @@ import {
   MdAssessment,
   MdLogout,
   MdPayment,
+  MdMessage,
 } from "react-icons/md";
 
 const menu = [
@@ -52,6 +53,12 @@ const menu = [
         name: "Payments",
         link: "/admin/payments",
         icon: <MdPayment />,
+      },
+      {
+        id: 6,
+        name: "Inquiry",
+        link: "/admin/messages",
+        icon: <MdMessage />,
       }, 
     ],
   },

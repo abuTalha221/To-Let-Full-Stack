@@ -13,6 +13,7 @@ import AdminPropertyDetails from "../Admin/Pages/Properties/AdminPropertyDetails
 import ManageUsers from "../Admin/Pages/ManageUsers";
 import AdminPayments from "../Admin/Pages/Payments/AdminPayments";
 import AdminReports from "../Admin/Pages/Reports/AdminReports";
+import Messages from "../Admin/Pages/Messages/Messages";
 
 
 // 🔒 Simple Admin Auth Guard
@@ -43,6 +44,7 @@ const AdminRoutes = () => {
         <Route path="properties" element={<Properties />}/>
         <Route path="properties/:id" element={<AdminPropertyDetails />} />
         <Route path="payments" element={<AdminPayments />} />
+        <Route path="messages" element={<Messages />} />
         <Route path="reports" element={<AdminReports />} />
       </Route>
     </Routes>

@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PublicPropertyController;
 use App\Http\Controllers\PropertyUnlockController;
+use App\Http\Controllers\ContactMessageController;
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminOrderController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Admin\AdminPropertyController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +35,9 @@ Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
 Route::get('/public-properties', [PublicPropertyController::class, 'index']);
 Route::get('/public-properties/{id}', [PublicPropertyController::class, 'show']);
+
+// Contact messages (public)
+Route::post('/contact-messages', [ContactMessageController::class, 'store']);
 
 // Test mail route
 Route::get('/test-mail', function() {
@@ -125,4 +130,11 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/reports', [AdminReportController::class, 'index']);
     Route::get('/reports/transactions', [AdminReportController::class, 'transactions']);
     Route::get('/reports/export', [AdminReportController::class, 'export']);
+
+    // Contact messages (admin)
+    Route::get('/contact-messages', [AdminContactMessageController::class, 'index']);
+    Route::get('/contact-messages/stats', [AdminContactMessageController::class, 'stats']);
+    Route::get('/contact-messages/{id}', [AdminContactMessageController::class, 'show']);
+    Route::patch('/contact-messages/{id}/status', [AdminContactMessageController::class, 'updateStatus']);
+    Route::delete('/contact-messages/{id}', [AdminContactMessageController::class, 'destroy']);
 });
