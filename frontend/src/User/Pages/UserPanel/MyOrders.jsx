@@ -43,7 +43,7 @@ const MyOrders = () => {
     fetchOrders();
   }, []);
 
-  // ✅ Handle payment callback
+  // Handle payment callback
   useEffect(() => {
     const status = searchParams.get("payment_status");
     const message = searchParams.get("message");
@@ -104,7 +104,7 @@ const MyOrders = () => {
         didOpen: () => Swal.showLoading(),
       });
 
-      // ✅ API call to initiate order payment
+      // API call to initiate order payment
       const res = await api.post("/initiate-order-payment", {
         order_id: selectedOrder.id,
       });
@@ -115,7 +115,7 @@ const MyOrders = () => {
 
       console.log("SSLCommerz Response:", data);
 
-      // ✅ Get gateway URL
+      // Get gateway URL
       const gateway =
         data.GatewayPageURL ||
         data.gateway_url ||
@@ -131,7 +131,7 @@ const MyOrders = () => {
         );
       }
 
-      // ✅ Redirect to payment gateway
+      // Redirect to payment gateway
       window.location.href = gateway;
     } catch (err) {
       Swal.close();
@@ -246,7 +246,7 @@ const MyOrders = () => {
                   <p className="text-xs md:text-sm text-gray-500">
                     From :{" "}
                     {new Date(
-                      2025,
+                      new Date().getFullYear(),
                       order.move_in_month - 1
                     ).toLocaleString("default", { month: "long" })}
                   </p>
@@ -301,7 +301,7 @@ const MyOrders = () => {
         </div>
       )}
 
-      {/* ✅ Order Payment Modal */}
+      {/* Order Payment Modal */}
       <OrderPaymentModal
         order={selectedOrder}
         isOpen={showPaymentModal}
@@ -314,7 +314,7 @@ const MyOrders = () => {
         isLoading={paymentLoading}
       />
 
-      {/* ✅ Invoice Modal */}
+      {/* Invoice Modal */}
       <Invoice
         order={selectedOrder}
         isOpen={showInvoice}

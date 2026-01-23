@@ -54,9 +54,7 @@ class AdminUserController extends Controller
         ]);
     }
 
-    /**
-     * Block a user
-     */
+    //Block a user
     public function block($id)
     {
         $user = User::findOrFail($id);
@@ -69,9 +67,7 @@ class AdminUserController extends Controller
         ]);
     }
 
-    /**
-     * Unblock a user
-     */
+    //Unblock a user
     public function unblock($id)
     {
         $user = User::findOrFail($id);

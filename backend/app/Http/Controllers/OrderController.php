@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Mail\OrderPlacedMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
-    /**
-     * Store new order
-     */
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -21,10 +21,10 @@ class OrderController extends Controller
             'move_in_month' => 'required|integer',
             'budget' => 'required|integer',
             'package_code' => 'required|string',
-            'contact_phone' => 'required|string',
+            'contact_phone' => 'required|regex:/^\d{11}$/',
         ]);
 
-        // Enforce cost based on package_code (server-side authoritative)
+       
         $cost = $this->packageCost($request->package_code);
 
         $order = Order::create([
@@ -53,6 +53,19 @@ class OrderController extends Controller
 
             'status' => 'pending',
         ]);
+
+        // Notify admin about the new order; fallback to default address if config not set
+        $adminEmail = config('mail.admin_address', 'team.tolet@gmail.com');
+
+        try {
+            Mail::to($adminEmail)->send(new OrderPlacedMail($order));
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to send admin new-order email', [
+                'order_id' => $order->id,
+                'admin_email' => $adminEmail,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => true,
@@ -102,13 +115,9 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Map package code to server-side cost. Default: 1000 BDT
-     */
+    
     private function packageCost($packageCode)
     {
-        // For now the platform uses a fixed package price of 1000 BDT for all packages.
-        // This method centralizes pricing in case it needs to change later.
         $default = 1000;
 
         $prices = [

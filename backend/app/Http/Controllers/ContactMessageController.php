@@ -24,7 +24,7 @@ class ContactMessageController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+        // update: create contact message
         $contactMessage = ContactMessage::create($request->all());
 
         return response()->json([

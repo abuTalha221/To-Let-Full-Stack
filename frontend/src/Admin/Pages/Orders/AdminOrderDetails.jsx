@@ -56,7 +56,7 @@ const AdminOrderDetails = () => {
 
   const fetchOrder = async () => {
     try {
-      const res = await api.get(`/admin/orders/${id}`);
+      const res = await api.get(`/admin/orders/${id}?include=transactions`);
       setOrder(res.data.order);
     } catch {
       Swal.fire("Error", "Unable to load order details", "error");
@@ -186,8 +186,16 @@ const AdminOrderDetails = () => {
             </span>
           </p>
           <p><b>Amount:</b> {order.cost} BDT</p>
-          <p><b>Method:</b> {order.payment_method || "Not paid yet"}</p>
-          <p><b>Transaction ID:</b> {order.transaction_id || "N/A"}</p>
+          <p>
+            <b>Method:</b> {order.payment_status === "paid" && order.transactions?.length > 0 
+              ? order.transactions[0]?.payment_gateway || "N/A" 
+              : (order.payment_status === "paid" ? "N/A" : "Not paid yet")}
+          </p>
+          <p>
+            <b>Transaction ID:</b> {order.payment_status === "paid" && order.transactions?.length > 0 
+              ? order.transactions[0]?.transaction_id || "N/A" 
+              : "N/A"}
+          </p>
         </div>
       </div>
 

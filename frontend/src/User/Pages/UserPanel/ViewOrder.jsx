@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import api from "../../../api";
 import Swal from "sweetalert2";
 
-/* 🔹 Date formatter */
+/*  Date formatter */
 const formatDate = (date) =>
   new Date(date).toLocaleString("en-GB", {
     day: "2-digit",
@@ -14,7 +14,7 @@ const formatDate = (date) =>
     hour12: true,
   });
 
-/* 🔹 Status colors */
+/*  Status colors */
 const statusColor = {
   pending: "bg-yellow-100 text-yellow-800",
   processing: "bg-blue-100 text-blue-800",
@@ -22,7 +22,7 @@ const statusColor = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-/* 🔹 Payment colors */
+/*  Payment colors */
 const paymentColor = {
   unpaid: "bg-red-100 text-red-800",
   paid: "bg-green-100 text-green-800",
@@ -61,7 +61,7 @@ const ViewOrder = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
-      {/* 🔹 HEADER */}
+      {/*  HEADER */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h2 className="text-2xl font-extrabold text-[#e45716]">
           Order #{order.id}
@@ -71,7 +71,7 @@ const ViewOrder = () => {
           Created : {formatDate(order.created_at)}
         </p>
 
-        {/* 🔹 STATUS BADGES */}
+        {/*  STATUS BADGES */}
         <div className="mt-4 flex flex-wrap gap-3">
           <span
             className={`px-3 py-1 text-sm font-bold rounded-full capitalize ${
@@ -91,7 +91,7 @@ const ViewOrder = () => {
         </div>
       </div>
 
-      {/* 🔹 PROPERTY DETAILS */}
+      {/*  PROPERTY DETAILS */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-4">
           Property Details
@@ -109,7 +109,7 @@ const ViewOrder = () => {
         </div>
       </div>
 
-      {/* 🔹 REQUIREMENT DETAILS */}
+      {/*  REQUIREMENT DETAILS */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-3">
           Details Requirement
@@ -123,7 +123,7 @@ const ViewOrder = () => {
   );
 };
 
-/* 🔸 Small reusable component */
+/*  Small reusable component */
 const Info = ({ label, value }) => (
   <div>
     <p className="text-sm font-semibold text-gray-500">{label}</p>
@@ -131,8 +131,8 @@ const Info = ({ label, value }) => (
   </div>
 );
 
-/* 🔸 Month helper */
+/*  Month helper */
 const monthName = (month) =>
-  new Date(2025, month - 1).toLocaleString("default", { month: "long" });
+  new Date(new Date().getFullYear(), month - 1).toLocaleString("default", { month: "long" });
 
 export default ViewOrder;

@@ -41,17 +41,15 @@ class Property extends Model
         'gas',
         'lift',
     ];
-
-    /* ✅ APPEND ATTRIBUTES FOR API */
+    
     protected $appends = [
         'title',
         'monthText',
         'categoryText',
     ];
 
-    /* ===============================
-       RELATION
-    =============================== */
+      // RELATION
+
     public function images()
     {
         return $this->hasMany(PropertyImage::class);
@@ -72,9 +70,8 @@ class Property extends Model
         };
     }
 
-    /* ===============================
-       MONTH TEXT (FIXED)
-    =============================== */
+    //Month  Fixed
+
     public function getMonthTextAttribute()
     {
         $months = [
@@ -87,9 +84,8 @@ class Property extends Model
         return $months[$this->month_id] ?? '';
     }
 
-    /* ===============================
-       TITLE
-    =============================== */
+  //Title generator
+  
     public function getTitleAttribute()
     {
         // Use office-friendly wording when category is Office (3)

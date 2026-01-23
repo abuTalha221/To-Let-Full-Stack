@@ -9,23 +9,23 @@ const UserLayout = () => {
 
   const [credits, setCredits] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
-  const [propertiesCount, setPropertiesCount] = useState(0); // ✅ NEW
+  const [propertiesCount, setPropertiesCount] = useState(0); 
 
   useEffect(() => {
-    // 🔹 fetch credits
+    //  fetch credits
     api.get("/credits").then((res) => {
       setCredits(res.data.credits || 0);
     });
 
-    // 🔹 fetch orders count
+    //  fetch orders count
     api.get("/my-orders").then((res) => {
       setOrdersCount(res.data.orders?.length || 0);
     });
 
-    // 🔹 fetch properties count ✅
+    //  fetch properties count 
     api.get("/my-properties").then((res) => {
       setPropertiesCount(res.data.properties?.length || 0);
-      // 👆 adjust key if API returns array directly
+      
     });
   }, []);
 
@@ -34,7 +34,7 @@ const UserLayout = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          className="md:hidden fixed inset-0 bg-opacity-50 z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -47,10 +47,11 @@ const UserLayout = () => {
           setSidebarOpen={setSidebarOpen}
           credits={credits}
           ordersCount={ordersCount}
+          propertiesCount={propertiesCount}
         />
 
         <main className="p-4 md:p-6 overflow-y-auto h-full">
-          {/* ✅ pass propertiesCount */}
+          {/*  pass propertiesCount */}
           <Outlet context={{ credits, ordersCount, propertiesCount }} />
         </main>
       </div>

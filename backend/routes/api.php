@@ -20,16 +20,14 @@ use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 
-/*
-|--------------------------------------------------------------------------
-| PUBLIC API ROUTES
-|--------------------------------------------------------------------------
-*/
+// Public Routes
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyEmailOtp']);
 Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
@@ -39,32 +37,14 @@ Route::get('/public-properties/{id}', [PublicPropertyController::class, 'show'])
 // Contact messages (public)
 Route::post('/contact-messages', [ContactMessageController::class, 'store']);
 
-// Test mail route
-Route::get('/test-mail', function() {
-    try {
-        $otp = '123456';
-        \Illuminate\Support\Facades\Mail::to('test@example.com')->send(new \App\Mail\EmailOtpMail($otp));
-        return response()->json(['status' => true, 'message' => 'Mail sent! Check Mailtrap inbox.']);
-    } catch (\Exception $e) {
-        return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
-    }
-});
 
-/*
-|--------------------------------------------------------------------------
-| SSLCommerz CALLBACK ROUTES (PUBLIC, NO AUTH, NO CSRF)
-|--------------------------------------------------------------------------
-*/
+// Payment Callbacks
 
 Route::post('/payment/success', [PaymentController::class, 'success']);
 Route::post('/payment/fail', [PaymentController::class, 'fail']);
 Route::post('/payment/cancel', [PaymentController::class, 'cancel']);
 
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATED API ROUTES
-|--------------------------------------------------------------------------
-*/
+//Authenticated User Routes
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', [AuthController::class, 'user']);
@@ -76,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/buy-credits', [CreditController::class, 'buy']);
     Route::get('/credits', [CreditController::class, 'credits']);
 
-    // ✅ PAYMENT ROUTES
+    // PAYMENT ROUTES
     Route::post('/initiate-ssl-payment', [PaymentController::class, 'initiatePayment']);
     Route::post('/initiate-order-payment', [PaymentController::class, 'initiateOrderPayment']);
 
@@ -98,11 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/unlocked', [PropertyUnlockController::class, 'index']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN ROUTES
-|--------------------------------------------------------------------------
-*/
+// Admin Routes
 Route::middleware('auth:admin')->prefix('admin')->group(function () {
 
     Route::post('/logout', [AdminAuthController::class, 'logout']);
@@ -128,8 +104,6 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::get('/payments-stats/gateway', [AdminPaymentController::class, 'gatewayStats']);
 
     Route::get('/reports', [AdminReportController::class, 'index']);
-    Route::get('/reports/transactions', [AdminReportController::class, 'transactions']);
-    Route::get('/reports/export', [AdminReportController::class, 'export']);
 
     // Contact messages (admin)
     Route::get('/contact-messages', [AdminContactMessageController::class, 'index']);

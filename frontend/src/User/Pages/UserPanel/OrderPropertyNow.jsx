@@ -3,173 +3,12 @@ import Swal from "sweetalert2";
 import api from "../../../api";
 import { useNavigate } from "react-router-dom";
 
-const dhakaLocations = {
-  Adabor: [
-    "Baitul Aman Housing",
-    "Dhaka Housing",
-    "Monsurabad",
-    "PC Culture Housing",
-    "Sunibir Housing",
-  ],
-  Airport: ["Ashkona", "Hazi Camp", "Kurmitola"],
-  Badda: [
-    "Adarsha Nagar",
-    "Aftab Nagar",
-    "Badda DIT Project",
-    "Beraid",
-    "Khilbari Tek",
-    "Merul Badda",
-    "Middle Badda",
-    "North Badda",
-    "Satarkul",
-    "South Badda",
-  ],
-  Banani: ["Banani Road 11", "Banani Road 15"],
-  Bangshal: ["Chankharpul", "Nazira Bazar", "Saat Rawza"],
-  Bhashantek: ["Bhashantek Block A"],
-  Cantonment: ["Dhaka Cantonment"],
-  Chawkbazar: ["Chawkbazar Main"],
-  Darussalam: ["Darussalam Area"],
-  Daskhinkhan: ["Daskhinkhan"],
-  Demra: [
-    "Amulia",
-    "Dogair",
-    "Konapara",
-    "Matuail",
-    "Nayapara",
-    "Sanarpar",
-    "Sarulia",
-  ],
-  Dhamrai: [
-    "Amta",
-    "Baishkanda",
-    "Balia",
-    "Bhararia",
-    "Chauhat",
-    "Ganggutia",
-    "Jadabpur",
-    "Kulla",
-    "Kushura",
-    "Nannar",
-    "Roail",
-    "Sanura",
-    "Sombhag",
-    "Suapur",
-    "Sutipara",
-  ],
-  Dhanmondi: [
-    "Dhanmondi 15",
-    "Dhanmondi 32",
-    "Elephant Road",
-    "Rabindra Sorubar",
-    "Shangkar",
-    "Sobhanbagh",
-    "Vuter Goli",
-    "West Dhanmondi",
-    "Zigatola",
-  ],
-  Dohar: ["Dohar"],
-  Gandaria: ["LPG Point", "Niketon"],
-  Gulshan: [
-    "Baridhara",
-    "Gulshan 1",
-    "Gulshan 2",
-    "Kalachandpur",
-    "Mohakhali",
-    "Nadda",
-    "Niketon",
-    "Shahjadpur",
-  ],
-  Hazaribag: ["Hazaribag"],
-  Jatrabari: ["Jatrabari North", "Jatrabari South"],
-  Kafrul: ["Kafrul"],
-  Kalabagan: ["Kalabagan"],
-  Kamrangirchar: ["Kamrangirchar"],
-  Keraniganj: ["Keraniganj"],
-  Khilgaon: ["Khilgaon"],
-  Khilkhet: ["Khilkhet"],
-  Kotwali: ["Kotwali"],
-  Lalbag: ["Lalbagh"],
-  Mirpur: ["Mirpur 1", "Mirpur 10", "Mirpur 11"],
-  Mohammadpur: ["Mohammadpur"],
-  Motijheel: ["Motijheel"],
-  Mugda: ["Mugda"],
-  Nawabganj: ["Nawabganj"],
-  "New Market": ["New Market"],
-  Others: [],
-  Pallabi: ["Pallabi"],
-  Paltan: ["Paltan"],
-  Purbachal: ["Purbachal"],
-  Ramna: ["Ramna"],
-  Rampura: ["Rampura Banasree", "Rampura Wapda Road", "Rampura Mohanagar"],
-  Rupnagar: ["Rupnagar"],
-  Sabujbag: ["Sabujbagh"],
-  Savar: ["Savar"],
-  "Shah Ali": ["Shah Ali"],
-  Shahbag: ["Shahbag"],
-  Shahjahanpur: ["Shahjahanpur"],
-  "Sher-E-Bangla Nagar": ["Sher-E-Bangla Nagar"],
-  Shyampur: ["Shyampur"],
-  Sutrapur: ["Sutrapur"],
-  Tejgaon: [
-    "Arjatpara",
-    "Bijoy Soroni",
-    "Farmgate",
-    "Kamarbari",
-    "Kawran Bazar",
-    "Nakhal Para",
-    "Raja Bazar",
-    "Shukrabad",
-    "Tejkuni Para",
-    "West Rajarbazar",
-  ],
-  "Tejgaon I/A": ["Tejgaon Industrial Area"],
-  Turag: ["Turag"],
-  Uttara: [
-    "Abdullahpur",
-    "Azampur",
-    "Bamnartek",
-    "Baunia",
-    "Bhatuliya",
-    "Diyabari",
-    "House Building",
-    "Kamarpara",
-    "Rosdia",
-    "Rupayan City",
-    "Sector 1",
-    "Sector 2",
-    "Sector 3",
-    "Sector 4",
-    "Sector 5",
-    "Sector 6",
-    "Sector 7",
-    "Sector 8",
-    "Sector 9",
-    "Sector 10",
-    "Sector 11",
-    "Sector 12",
-    "Sector 13",
-    "Sector 14",
-    "Sector 15",
-    "Sector 18",
-  ],
-  Uttarkhan: ["Beparipara", "Gulgulia", "Master Bari", "Nowapara"],
-  Vatara: [
-    "100 Ft Rood",
-    "Bashundhara R.A",
-    "Kuril",
-    "Natun Bazar",
-    "Nurer Chala",
-    "Sayeed Nagar",
-    "Solmaid",
-  ],
-  Wari: ["Narinda", "Sayedabad", "Tikatuli"],
-};
+const dhakaLocations = ["Adabor", "Airport", "Badda", "Banani", "Bangshal", "Bhashantek", "Cantonment", "Chawkbazar", "Darussalam", "Daskhinkhan", "Demra", "Dhamrai", "Dhanmondi", "Dohar", "Gandaria", "Gulshan", "Hazaribag", "Jatrabari", "Kafrul", "Kalabagan", "Kamrangirchar", "Keraniganj", "Khilgaon", "Khilkhet", "Kotwali", "Lalbag", "Mirpur", "Mohammadpur", "Motijheel", "Mugda", "Nawabganj", "New Market", "Others", "Pallabi", "Paltan", "Purbachal", "Ramna", "Rampura", "Rupnagar", "Sabujbag", "Savar", "Shah Ali", "Shahbag", "Shahjahanpur", "Sher-E-Bangla Nagar", "Shyampur", "Sutrapur", "Tejgaon", "Tejgaon I/A", "Turag", "Uttara", "Uttarkhan", "Vatara", "Wari"];
 
 const packages = [{ id: "pack01", label: "7 Days Only", price: 1000 }];
 
 const OrderPropertyNow = () => {
-  const navigate = useNavigate(); // ✅ FIX
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     division: "Dhaka",
@@ -190,14 +29,13 @@ const OrderPropertyNow = () => {
 
   const [submitting, setSubmitting] = useState(false);
 
-  // cost from selected package (fixed package price — 1000 BDT)
   const cost = useMemo(() => {
     const p = packages.find((x) => x.id === form.package);
-    return p ? p.price : 1000; // default to 1000 if package not found
+    return p ? p.price : 1000; 
   }, [form.package]);
 
-  // subareas for currently selected area (empty array if none)
-  const subareas = form.area ? dhakaLocations[form.area] || [] : [];
+  
+  const subareas = [];
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -211,10 +49,10 @@ const OrderPropertyNow = () => {
 
   const validate = () => {
     if (!form.area) return Swal.fire("Error", "Select area", "warning");
-    if (subareas.length && !form.subarea)
-      return Swal.fire("Error", "Select subarea", "warning");
     if (!form.room || !form.move_in_month || !form.budget || !form.phone)
       return Swal.fire("Error", "Please fill all required fields", "warning");
+    if (!/^\d{11}$/.test(form.phone))
+      return Swal.fire("Error", "Phone number must be exactly 11 digits (e.g., 01XXXXXXXXX)", "warning");
     if (!form.tac)
       return Swal.fire("Error", "Accept Terms & Conditions", "warning");
     return true;
@@ -262,7 +100,7 @@ const OrderPropertyNow = () => {
         confirmButtonColor: "#e45716",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          // Directly initiate order payment and redirect to gateway (same-window)
+          
           try {
             Swal.fire({
               title: "Processing payment...",
@@ -310,7 +148,6 @@ const OrderPropertyNow = () => {
             Property Requirement
           </h3>
 
-          {/* Division / District / Area */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -346,7 +183,7 @@ const OrderPropertyNow = () => {
                 required
               >
                 <option value="">Select area (Dhaka)</option>
-                {Object.keys(dhakaLocations).map((a) => (
+                {dhakaLocations.map((a) => (
                   <option key={a} value={a}>
                     {a}
                   </option>
@@ -355,28 +192,20 @@ const OrderPropertyNow = () => {
             </div>
           </div>
 
-          {/* Subarea (shows only when subareas exist for chosen area) */}
-          {subareas.length > 0 && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subarea*
-              </label>
-              <select
-                name="subarea"
-                value={form.subarea}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded"
-                required
-              >
-                <option value="">Select subarea</option>
-                {subareas.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          {/* Subarea (user types the name) */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Subarea
+            </label>
+            <input
+              type="text"
+              name="subarea"
+              value={form.subarea}
+              onChange={handleChange}
+              placeholder="Enter subarea name (e.g., Bashundhara R.A, Banani Road 11)"
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
 
           {/* category, room, month */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -495,13 +324,19 @@ const OrderPropertyNow = () => {
                 Phone*
               </label>
               <input
+                type="tel"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded"
                 placeholder="01XXXXXXXXX"
+                maxLength="11"
+                pattern="\d{11}"
                 required
               />
+              {form.phone && !/^\d{11}$/.test(form.phone) && (
+                <p className="text-red-500 text-sm mt-1">Phone must be 11 digits (e.g., 01912345678)</p>
+              )}
             </div>
           </div>
 

@@ -34,21 +34,21 @@ const Registration = () => {
     setLoading(true);
 
     try {
-      // ✅ Register API
+      //  Register API
       const res = await api.post("/register", form);
 
-      // ✅ SAVE REQUIRED DATA FOR OTP PAGE
+      //  SAVE REQUIRED DATA FOR OTP PAGE
       localStorage.setItem("verify_user_id", res.data.user_id);
       localStorage.setItem("verify_email", form.email);
 
       await Swal.fire({
         icon: "success",
-        title: "OTP Sent 📩",
+        title: "OTP Sent",
         text: "A 6-digit OTP has been sent to your email. Please verify it.",
         confirmButtonColor: "#e45716",
       });
 
-      // ✅ Redirect to OTP verification page
+      //  Redirect to OTP verification page
       navigate("/verify-otp");
     } catch (err) {
       if (err.response?.status === 422) {
@@ -67,7 +67,7 @@ const Registration = () => {
   };
 
   return (
-    <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen mt-15 p-8 flex items-center justify-center bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
         <h2 className="text-center text-4xl font-bold text-gray-800">
           Create an Account

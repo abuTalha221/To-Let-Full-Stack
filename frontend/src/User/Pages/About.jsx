@@ -122,7 +122,7 @@ const About = () => {
       {/* Customer Reviews */}
       <section className="max-w-6xl mx-auto mb-16">
         <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">What Our Customers Say</h2>
-        <p className="text-center text-gray-500 text-lg mb-12">Real experiences from our happy clients around the world 🌎</p>
+        <p className="text-center text-gray-500 text-lg mb-12">Real experiences from our happy clients around the world</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {reviews.map((review, index) => (
             <div

@@ -8,7 +8,7 @@ import {
   MdPayment,
 } from "react-icons/md";
 
-/* 🔹 Status color map */
+/* Status color map */
 const statusColor = {
   pending: "bg-yellow-100 text-yellow-800",
   processing: "bg-blue-100 text-blue-800",
@@ -51,7 +51,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50 min-h-screen">
-      {/* 🔷 HEADER */}
+      {/*  HEADER */}
       <div>
         <h1 className="text-xl md:text-2xl font-extrabold text-gray-800">
           Dashboard
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
         </p>
       </div>
 
-      {/* 🔷 STATS CARDS */}
+      {/*  STATS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard
           title="Total Users"
@@ -96,9 +96,9 @@ const AdminDashboard = () => {
         />
       </div>
 
-      {/* 🔷 OVERVIEW SECTION */}
+      {/*  OVERVIEW SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 👤 Recent Users */}
+        {/*  Recent Users */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Recent Users
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* 🛒 Recent Orders */}
+        {/*  Recent Orders */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Recent Orders
@@ -157,7 +157,7 @@ const AdminDashboard = () => {
   );
 };
 
-/* 🔹 Reusable Stat Card */
+/*  Reusable Stat Card */
 const StatCard = ({ title, value, icon, color, onClick }) => (
   <div 
     onClick={onClick}

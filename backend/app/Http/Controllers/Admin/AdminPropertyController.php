@@ -9,9 +9,8 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminPropertyController extends Controller
 {
-    /* =====================================================
-       1️⃣ GET ALL PROPERTIES (ADMIN)
-    ===================================================== */
+    // Get all properties for admin
+
     public function index()
     {
         $properties = Property::with('images')
@@ -23,9 +22,8 @@ class AdminPropertyController extends Controller
         ]);
     }
 
-    /* =====================================================
-       2️⃣ SHOW SINGLE PROPERTY (ADMIN DETAILS PAGE)
-    ===================================================== */
+    // Show single property for admin details page
+
     public function show($id)
     {
         $property = Property::with('images')->find($id);
@@ -41,10 +39,7 @@ class AdminPropertyController extends Controller
         ]);
     }
 
-    /* =====================================================
-       3️⃣ UPDATE ADMIN STATUS
-       (pending / accepted / rejected)
-    ===================================================== */
+    // Update property admin status
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -59,15 +54,15 @@ class AdminPropertyController extends Controller
             ], 404);
         }
 
-        /* 🔥 ADMIN STATUS */
+        // Update admin status
         $property->admin_status = $request->admin_status;
 
-        /* 🔥 AUTO HANDLE PROPERTY STATUS */
+        // Auto handle property status
         if ($request->admin_status === 'accepted') {
-            // ✅ AUTO ACTIVATE WHEN APPROVED
+            // AUTO ACTIVATE WHEN APPROVED
             $property->status = 'active';
         } else {
-            // ❌ pending or rejected → inactive
+            // pending or rejected → inactive
             $property->status = 'inactive';
         }
 
@@ -79,9 +74,7 @@ class AdminPropertyController extends Controller
         ]);
     }
 
-    /* =====================================================
-       4️⃣ DELETE PROPERTY (ADMIN)
-    ===================================================== */
+    // Delete property
     public function destroy($id)
     {
         $property = Property::with('images')->find($id);
@@ -92,14 +85,14 @@ class AdminPropertyController extends Controller
             ], 404);
         }
 
-        /* 🔥 DELETE IMAGES FROM STORAGE */
+        // Delete images from storage
         foreach ($property->images as $image) {
             if ($image->image_path) {
                 Storage::disk('public')->delete($image->image_path);
             }
         }
 
-        /* 🔥 DELETE PROPERTY */
+        // Delete property
         $property->delete();
 
         return response()->json([

@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 
 class PublicPropertyController extends Controller
 {
-    /* ======================================
-       GET ALL PUBLIC PROPERTIES
-    ====================================== */
+   
+        // GET ALL PUBLIC PROPERTIES
+
     public function index(Request $request)
     {
         $query = Property::with('images')
@@ -78,9 +78,9 @@ class PublicPropertyController extends Controller
         return $map[$key] ?? null;
     }
 
-    /* ======================================
-       GET SINGLE PUBLIC PROPERTY
-    ====================================== */
+    
+       // GET SINGLE PUBLIC PROPERTY
+       
     public function show($id)
     {
         $property = Property::with('images')

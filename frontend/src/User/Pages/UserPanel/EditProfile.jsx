@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import api from "../../../api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import UserNavbar from "../../Components/UserNavbar"; // ✅ Added Navbar
+import UserNavbar from "../../Components/UserNavbar";
 
 const EditProfile = () => {
   const [user, setUser] = useState({ name: "", email: "" });

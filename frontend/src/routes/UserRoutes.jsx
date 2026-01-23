@@ -12,7 +12,7 @@ import Contact from "../User/Pages/Contact";
 import Registration from "../User/Pages/Registration/Registration";
 import Login from "../User/Pages/Registration/Login";
 import VerifyOtp from "../User/Pages/Registration/VerifyOtp";
-import FindHouse from "../User/Pages/FindHouse";
+import ForgotPassword from "../User/Pages/Registration/ForgotPassword";
 import OrderHome from "../User/Pages/OrderHome";
 import SearchResults from "../User/Pages/SearchResults";
 
@@ -59,8 +59,8 @@ const UserRoutes = () => {
         <Route path="/register" element={<Registration />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        <Route path="/find-house" element={<FindHouse />} />
         <Route path="/order-home" element={<OrderHome />} />
         <Route path="/search-results" element={<SearchResults />} />
 

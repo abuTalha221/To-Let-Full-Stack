@@ -20,7 +20,7 @@ const VerifyOtp = () => {
   const email = localStorage.getItem("verify_email");
 
   /* =============================
-     ⏳ OTP EXPIRY TIMER
+     OTP EXPIRY TIMER
   ============================= */
   useEffect(() => {
     if (otpTimeLeft <= 0) return;
@@ -33,7 +33,7 @@ const VerifyOtp = () => {
   }, [otpTimeLeft]);
 
   /* =============================
-     🔁 RESEND COOLDOWN TIMER
+     RESEND COOLDOWN TIMER
   ============================= */
   useEffect(() => {
     if (resendTimeLeft <= 0) return;
@@ -46,7 +46,7 @@ const VerifyOtp = () => {
   }, [resendTimeLeft]);
 
   /* =============================
-     ✅ VERIFY OTP
+      VERIFY OTP
   ============================= */
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -87,7 +87,7 @@ const VerifyOtp = () => {
 
       await Swal.fire({
         icon: "success",
-        title: "Email Verified 🎉",
+        title: "Email Verified",
         text: "Registration successful. Welcome to To Let!",
         confirmButtonColor: "#e45716",
       });
@@ -105,7 +105,7 @@ const VerifyOtp = () => {
   };
 
   /* =============================
-     🔁 RESEND OTP
+      RESEND OTP
   ============================= */
   const handleResend = async () => {
     if (!userId || resendTimeLeft > 0) return;
@@ -121,7 +121,7 @@ const VerifyOtp = () => {
 
       Swal.fire({
         icon: "success",
-        title: "OTP Resent 📩",
+        title: "OTP Resent",
         text: "A new OTP has been sent to your email.",
         confirmButtonColor: "#e45716",
       });
@@ -137,7 +137,7 @@ const VerifyOtp = () => {
   };
 
   /* =============================
-     ⏱ FORMAT TIME
+      FORMAT TIME
   ============================= */
   const otpMinutes = Math.floor(otpTimeLeft / 60);
   const otpSeconds = String(otpTimeLeft % 60).padStart(2, "0");
@@ -176,20 +176,6 @@ const VerifyOtp = () => {
             {loading ? "Verifying..." : "Verify OTP"}
           </button>
         </form>
-
-        {/* OTP TIMER */}
-        <div className="mt-4 text-center text-sm text-gray-600">
-          {otpTimeLeft > 0 ? (
-            <>
-              OTP expires in{" "}
-              <span className="font-semibold text-gray-800">
-                {otpMinutes}:{otpSeconds}
-              </span>
-            </>
-          ) : (
-            <span className="text-red-600">OTP expired</span>
-          )}
-        </div>
 
         {/* RESEND BUTTON */}
         <button

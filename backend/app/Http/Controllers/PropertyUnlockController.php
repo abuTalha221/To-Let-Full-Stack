@@ -70,7 +70,6 @@ class PropertyUnlockController extends Controller
             ], 404);
         }
 
-        // ❌ Owner doesn't need unlock
         if ($property->user_id === $user->id) {
             return response()->json([
                 'message' => 'You already own this property',
@@ -78,7 +77,7 @@ class PropertyUnlockController extends Controller
             ]);
         }
 
-        // ✅ Already unlocked
+        //  Already unlocked
         $alreadyUnlocked = PropertyUnlock::where([
             'user_id' => $user->id,
             'property_id' => $property->id,
@@ -91,7 +90,7 @@ class PropertyUnlockController extends Controller
             ]);
         }
 
-        // ❌ Not enough credits
+        //  Not enough credits
         if ($user->credits < 10) {
             return response()->json([
                 'message' => 'Not enough credits',
@@ -110,10 +109,10 @@ class PropertyUnlockController extends Controller
                     'message' => 'Not enough credits',
                 ], 403);
             }
-
+            // 10 credits decrement here, i can change it later
             $user->decrement('credits', 10);
 
-            // 🔓 Unlock property
+            // Unlock property
             PropertyUnlock::create([
                 'user_id' => $user->id,
                 'property_id' => $property->id,

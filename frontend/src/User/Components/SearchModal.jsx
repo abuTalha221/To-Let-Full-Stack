@@ -1,70 +1,8 @@
 // src/components/SearchModal.jsx
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
-
-
-const dhakaLocations = {
-  Adabor: ["Baitul Aman Housing", "Dhaka Housing", "Monsurabad", "PC Culture Housing", "Sunibir Housing"],
-  Airport: ["Ashkona", "Hazi Camp", "Kurmitola"],
-  Badda: ["Adarsha Nagar","Aftab Nagar","Badda DIT Project","Beraid","Khilbari Tek","Merul Badda","Middle Badda","North Badda","Satarkul","South Badda"],
-  Banani: ["Banani Road 11", "Banani Road 15"],
-  Bangshal: ["Chankharpul", "Nazira Bazar", "Saat Rawza"],
-  Bhashantek: ["Bhashantek Block A"],
-  Cantonment: ["Dhaka Cantonment"],
-  Chawkbazar: ["Chawkbazar Main"],
-  Darussalam: ["Darussalam Area"],
-  Daskhinkhan: ["Daskhinkhan"],
-  Demra: ["Amulia", "Dogair", "Konapara", "Matuail", "Nayapara", "Sanarpar", "Sarulia"],
-  Dhamrai: ["Amta","Baishkanda","Balia","Bhararia","Chauhat","Ganggutia","Jadabpur","Kulla","Kushura","Nannar","Roail","Sanura","Sombhag","Suapur","Sutipara"],
-  Dhanmondi: ["Dhanmondi 15","Dhanmondi 32","Elephant Road","Rabindra Sorubar","Shangkar","Sobhanbagh","Vuter Goli","West Dhanmondi","Zigatola"],
-  Dohar: ["Dohar"],
-  Gandaria: ["LPG Point","Niketon"],
-  Gulshan: ["Baridhara","Gulshan 1","Gulshan 2","Kalachandpur","Mohakhali","Nadda","Niketon","Shahjadpur"],
-  Hazaribag: ["Hazaribag"],
-  Jatrabari: ["Jatrabari North", "Jatrabari South"],
-  Kafrul: ["Kafrul"],
-  Kalabagan: ["Kalabagan"],
-  Kamrangirchar: ["Kamrangirchar"],
-  Keraniganj: ["Keraniganj"],
-  Khilgaon: ["Khilgaon"],
-  Khilkhet: ["Khilkhet"],
-  Kotwali: ["Kotwali"],
-  Lalbag: ["Lalbagh"],
-  Mirpur: ["Mirpur 1", "Mirpur 10", "Mirpur 11"],
-  Mohammadpur: ["Mohammadpur"],
-  Motijheel: ["Motijheel"],
-  Mugda: ["Mugda"],
-  Nawabganj: ["Nawabganj"],
-  "New Market": ["New Market"],
-  Others: [],
-  Pallabi: ["Pallabi"],
-  Paltan: ["Paltan"],
-  Purbachal: ["Purbachal"],
-  Ramna: ["Ramna"],
-  Rampura: ["Rampura Banasree", "Rampura Wapda Road", "Rampura Mohanagar"],
-  Rupnagar: ["Rupnagar"],
-  Sabujbag: ["Sabujbagh"],
-  Savar: ["Savar"],
-  "Shah Ali": ["Shah Ali"],
-  Shahbag: ["Shahbag"],
-  Shahjahanpur: ["Shahjahanpur"],
-  "Sher-E-Bangla Nagar": ["Sher-E-Bangla Nagar"],
-  Shyampur: ["Shyampur"],
-  Sutrapur: ["Sutrapur"],
-  Tejgaon: ["Arjatpara", "Bijoy Soroni", "Farmgate", "Kamarbari", "Kawran Bazar", "Nakhal Para", "Raja Bazar", "Shukrabad", "Tejkuni Para", "West Rajarbazar"],
-  "Tejgaon I/A": ["Tejgaon Industrial Area"],
-  Turag: ["Turag"],
-  Uttara: [
-    "Abdullahpur","Azampur","Bamnartek","Baunia","Bhatuliya","Diyabari",
-    "House Building","Kamarpara","Rosdia","Rupayan City",
-    "Sector 1","Sector 2","Sector 3","Sector 4","Sector 5",
-    "Sector 6","Sector 7","Sector 8","Sector 9","Sector 10","Sector 11",
-    "Sector 12","Sector 13","Sector 14","Sector 15","Sector 18"
-  ],
-  Uttarkhan: ["Beparipara","Gulgulia","Master Bari","Nowapara"],
-  Vatara: ["100 Ft Rood","Bashundhara R.A","Kuril","Natun Bazar","Nurer Chala","Sayeed Nagar","Solmaid"],
-  Wari: ["Narinda", "Sayedabad", "Tikatuli"],
-};
+const dhakaLocations = ["Adabor", "Airport", "Badda", "Banani", "Bangshal", "Bhashantek", "Cantonment", "Chawkbazar", "Darussalam", "Daskhinkhan", "Demra", "Dhamrai", "Dhanmondi", "Dohar", "Gandaria", "Gulshan", "Hazaribag", "Jatrabari", "Kafrul", "Kalabagan", "Kamrangirchar", "Keraniganj", "Khilgaon", "Khilkhet", "Kotwali", "Lalbag", "Mirpur", "Mohammadpur", "Motijheel", "Mugda", "Nawabganj", "New Market", "Others", "Pallabi", "Paltan", "Purbachal", "Ramna", "Rampura", "Rupnagar", "Sabujbag", "Savar", "Shah Ali", "Shahbag", "Shahjahanpur", "Sher-E-Bangla Nagar", "Shyampur", "Sutrapur", "Tejgaon", "Tejgaon I/A", "Turag", "Uttara", "Uttarkhan", "Vatara", "Wari"];
 
 const SearchModal = ({ isOpen, onClose, onNavigate }) => {
   const [mounted, setMounted] = useState(false);
@@ -74,12 +12,6 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
   const [category, setCategory] = useState("");
   const [area, setArea] = useState("");
   const [subarea, setSubarea] = useState("");
-
-  // list of areas from dhakaLocations keys
-  const areaList = Object.keys(dhakaLocations);
-
-  // subareas for currently selected area
-  const [availableSubareas, setAvailableSubareas] = useState([]);
 
   // animate on open
   useEffect(() => {
@@ -91,18 +23,6 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
       setMounted(false);
     }
   }, [isOpen]);
-
-  // update subareas when area changes; hide subarea until area selected
-  useEffect(() => {
-    if (area) {
-      const subs = dhakaLocations[area] || [];
-      setAvailableSubareas(subs);
-      setSubarea(""); // reset
-    } else {
-      setAvailableSubareas([]);
-      setSubarea("");
-    }
-  }, [area]);
 
   // close on Escape
   useEffect(() => {
@@ -136,7 +56,12 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
     }
 
     if (!area) {
-      alert("Please select an area to search.");
+      Swal.fire({
+        icon: "warning",
+        title: "Area Required",
+        text: "Please select an area to search.",
+        confirmButtonColor: "#e45716",
+      });
       return;
     }
 
@@ -227,46 +152,20 @@ const SearchModal = ({ isOpen, onClose, onNavigate }) => {
                 className="w-full border rounded-lg px-3 py-2 bg-white/90"
               >
                 <option value="">Select area</option>
-                {areaList.map((a) => (
+                {dhakaLocations.map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>
             </div>
 
-            {/* Subarea: hidden until area chosen */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subarea
-              </label>
-
-              {/* If no area chosen => show helper text */}
-              {!area && (
-                <div className="text-gray-400 text-sm mt-1">Select an area first to choose subarea</div>
-              )}
-
-              {/* When area chosen and there are subareas => show select */}
-              {area && availableSubareas.length > 0 && (
-                <select
-                  value={subarea}
-                  onChange={(e) => setSubarea(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2 bg-white/90"
-                >
-                  <option value="">Select subarea</option>
-                  {availableSubareas.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              )}
-
-              {/* When area chosen but no predefined subareas => show manual input */}
-              {area && availableSubareas.length === 0 && (
-                <input
-                  value={subarea}
-                  onChange={(e) => setSubarea(e.target.value)}
-                  placeholder="Type subarea (no predefined list)"
-                  className="w-full border rounded-lg px-3 py-2 bg-white/90"
-                />
-              )}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Subarea</label>
+              <input
+                value={subarea}
+                onChange={(e) => setSubarea(e.target.value)}
+                placeholder="Enter subarea (optional)"
+                className="w-full border rounded-lg px-3 py-2 bg-white/90"
+              />
             </div>
           </div>
 

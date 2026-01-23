@@ -9,7 +9,7 @@ const Invoice = ({ order, isOpen, onClose }) => {
 
   if (!isOpen || !order) return null;
 
-  // ✅ Auto filename for browser save
+  //  Auto filename for browser save
   useEffect(() => {
     const oldTitle = document.title;
     document.title = `Invoice-Order-${order.id}`;
@@ -22,7 +22,7 @@ const Invoice = ({ order, isOpen, onClose }) => {
     window.print();
   };
 
-  // ✅ Redirect to orders page on close
+  // Redirect to orders page on close
   const handleClose = () => {
     onClose?.();
     navigate("/user/orders");
@@ -90,7 +90,7 @@ const Invoice = ({ order, isOpen, onClose }) => {
         {/* Invoice Content */}
         <div ref={invoiceRef} className="p-8 bg-white relative">
 
-          {/* ✅ Watermark (PAID / UNPAID) */}
+          {/*  Watermark (PAID / UNPAID) */}
           <div className="print-watermark">
             {order.payment_status === "paid" ? "PAID" : "UNPAID"}
           </div>

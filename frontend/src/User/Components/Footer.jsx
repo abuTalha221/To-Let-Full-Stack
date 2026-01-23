@@ -16,10 +16,6 @@ const Footer = () => {
 
   const propertyLinks = [
     { label: 'All Properties', path: '/properties' },
-    { label: 'Dhaka Division', path: '/properties?region=dhaka' },
-    { label: 'Chittagong Division', path: '/properties?region=chittagong' },
-    { label: 'Khulna Division', path: '/properties?region=khulna' },
-    { label: 'Sylhet Division', path: '/properties?region=sylhet' },
   ];
 
   const socialLinks = [
@@ -109,14 +105,14 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start group">
                 <FaMapMarkerAlt className="text-orange-500 mr-3 mt-1 flex-shrink-0" />
-                <span className="text-sm text-gray-400 group-hover:text-orange-500 transition">
+                <a href='https://maps.app.goo.gl/gUnRz3Nt3KwRQ5PL6' className="text-sm text-gray-400 group-hover:text-orange-500 transition">
                   Bamnertek Main Road<br/>Dhaka, Bangladesh
-                </span>
+                </a>
               </li>
               <li className="flex items-center group">
                 <FaPhone className="text-orange-500 mr-3 flex-shrink-0" />
-                <a href="tel:+880123456890" className="text-sm text-gray-400 hover:text-orange-500 transition">
-                  +880 1234 567890
+                <a href="https://wa.me/8801791740135" className="text-sm text-gray-400 hover:text-orange-500 transition">
+                  +880 1791 740135
                 </a>
               </li>
               <li className="flex items-center group">

@@ -10,9 +10,7 @@ use Carbon\Carbon;
 
 class AdminReportController extends Controller
 {
-    /**
-     * Get comprehensive earnings and statistics report
-     */
+    // Generate reports on transactions, earnings, credits sold, and orders completed
     public function index(Request $request)
     {
         $period = $request->get('period', 'monthly'); // weekly, monthly, yearly
@@ -22,14 +20,14 @@ class AdminReportController extends Controller
         
         switch ($period) {
             case 'weekly':
-                $startDate = $now->copy()->startOfWeek();
-                $endDate = $now->copy()->endOfWeek();
+                $startDate = $now->copy()->startOfWeek(); // Strat from Monday
+                $endDate = $now->copy()->endOfWeek(); // End on Sunday
                 $previousStartDate = $now->copy()->subWeek()->startOfWeek();
                 $previousEndDate = $now->copy()->subWeek()->endOfWeek();
                 break;
             
             case 'yearly':
-                $startDate = $now->copy()->startOfYear();
+                $startDate = $now->copy()->startOfYear(); 
                 $endDate = $now->copy()->endOfYear();
                 $previousStartDate = $now->copy()->subYear()->startOfYear();
                 $previousEndDate = $now->copy()->subYear()->endOfYear();
@@ -58,9 +56,6 @@ class AdminReportController extends Controller
         // Get all-time stats
         $allTimeStats = $this->calculateStats(Carbon::create(2020, 1, 1), $now);
 
-        // Get monthly breakdown for the current year
-        $monthlyBreakdown = $this->getMonthlyBreakdown();
-
         return response()->json([
             'status' => true,
             'period' => $period,
@@ -80,7 +75,6 @@ class AdminReportController extends Controller
                 'orders' => $ordersGrowth,
             ],
             'all_time' => $allTimeStats,
-            'monthly_breakdown' => $monthlyBreakdown,
         ]);
     }
 
@@ -117,67 +111,5 @@ class AdminReportController extends Controller
         }
         
         return round((($current - $previous) / $previous) * 100, 2);
-    }
-
-    /**
-     * Get monthly breakdown for current year
-     */
-    private function getMonthlyBreakdown()
-    {
-        $currentYear = Carbon::now()->year;
-        $breakdown = [];
-
-        for ($month = 1; $month <= 12; $month++) {
-            $startDate = Carbon::create($currentYear, $month, 1)->startOfMonth();
-            $endDate = Carbon::create($currentYear, $month, 1)->endOfMonth();
-
-            $stats = $this->calculateStats($startDate, $endDate);
-
-            $breakdown[] = [
-                'month' => $startDate->format('M'),
-                'month_number' => $month,
-                'earnings' => $stats['total_earnings'],
-                'credits' => $stats['credits_sold'],
-                'orders' => $stats['orders_completed'],
-            ];
-        }
-
-        return $breakdown;
-    }
-
-    /**
-     * Get detailed transaction report
-     */
-    public function transactions(Request $request)
-    {
-        $perPage = $request->get('per_page', 50);
-        
-        $transactions = Transaction::with('user')
-            ->where('status', 'success')
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
-
-        return response()->json([
-            'status' => true,
-            'transactions' => $transactions,
-        ]);
-    }
-
-    /**
-     * Export report data (can be extended for CSV/PDF)
-     */
-    public function export(Request $request)
-    {
-        $period = $request->get('period', 'monthly');
-        
-        // Get report data
-        $reportData = $this->index($request)->getData();
-
-        // For now, return JSON (can be extended to generate CSV/PDF)
-        return response()->json([
-            'status' => true,
-            'message' => 'Report data ready for export',
-            'data' => $reportData,
-        ]);
     }
 }

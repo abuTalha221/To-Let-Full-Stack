@@ -11,7 +11,6 @@ const PublicProperties = () => {
   const propertiesPerPage = 8;
 
 
-
   useEffect(() => {
     const controller = new AbortController();
     fetchProperties(controller.signal);

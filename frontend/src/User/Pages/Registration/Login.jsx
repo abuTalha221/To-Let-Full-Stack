@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // ✅ Same icons as EditProfile
+import { FaEye, FaEyeSlash } from "react-icons/fa"; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ const Login = () => {
           if (result.isConfirmed) navigate("/register");
 
         } else if (status === 403 && data.blocked) {
-          // 🔒 Account is blocked
+          // Account is blocked
           Swal.fire({
             icon: "warning",
             title: "Account Blocked",
@@ -159,6 +159,16 @@ const Login = () => {
               >
                 {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
               </span>
+            </div>
+
+            {/* Forgot Password Link */}
+            <div className="mt-2 text-right">
+              <a
+                href="/forgot-password"
+                className="text-sm font-medium text-[#e45716] hover:text-[#EC733B]"
+              >
+                Forgot Password?
+              </a>
             </div>
           </div>
 

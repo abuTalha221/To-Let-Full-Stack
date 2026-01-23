@@ -79,8 +79,7 @@ const PropertyCard = ({ property }) => {
         <p className="text-sm text-gray-600 mb-4">
           {property.area}, {property.district}
         </p>
-
-        {/* VIEW BUTTON */}
+        {/* VIEW DETAILS BUTTON */}
         <Link
           to={`/property-post/${property.id}`}
           aria-label={`View details for property ${property.id}`}

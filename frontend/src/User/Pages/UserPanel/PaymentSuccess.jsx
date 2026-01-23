@@ -16,8 +16,7 @@ const PaymentSuccess = () => {
       text: credits ? `You received ${credits} credits.` : 'Thank you for your payment.',
       confirmButtonColor: '#e45716'
     }).then(() => {
-      // refresh local user profile to show updated credits
-      // reload user from backend or redirect user to dashboard
+      
       navigate('/user-panel');
     });
   }, [location, navigate]);

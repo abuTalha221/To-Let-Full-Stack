@@ -4,7 +4,7 @@ import { FaBars, FaTimes, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import api from "../../api";
-import SearchModal from "./SearchModal"; // your modal component (already created)
+import SearchModal from "./SearchModal"; 
 
 const menu = [
   { id: 1, name: "Home", link: "/" },
@@ -19,17 +19,16 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [searchOpen, setSearchOpen] = useState(false); // modal control
+  const [searchOpen, setSearchOpen] = useState(false); 
 
   const token = localStorage.getItem("auth_token");
 
-  // Load user info on mount
+  
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Protected route handler
   const handleProtectedNavigation = async (name, link) => {
     if (!token) {
       const result = await Swal.fire({
@@ -48,12 +47,10 @@ const Navbar = () => {
     navigate(link);
   };
 
-  // Callback passed to SearchModal: modal will call this with url to navigate
+ 
   const handleModalNavigate = (url) => {
     setSearchOpen(false);
-    // Use navigate if url is within app; otherwise fallback to location.href
     try {
-      // If url is an absolute external URL, this will work too
       window.location.href = url;
     } catch (err) {
       navigate(url);
@@ -64,7 +61,6 @@ const Navbar = () => {
     <>
       <nav className="shadow-md bg-white dark:bg-gray-900 dark:text-white fixed top-0 left-0 w-full z-50 transition-all">
         <div className="flex justify-between items-center py-2 px-4 md:px-10 lg:px-20">
-          {/* Logo */}
           <a href="/" className="flex items-center gap-2">
             <img
               src={Logo}
@@ -73,7 +69,6 @@ const Navbar = () => {
             />
           </a>
 
-          {/* Desktop Menu */}
           <ul className="hidden md:flex items-center gap-6">
             {menu.map((data) => (
               <li key={data.id}>
@@ -96,7 +91,6 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Desktop Right Side */}
           <div className="hidden md:flex gap-4 items-center">
             {!token ? (
               <button
@@ -117,7 +111,6 @@ const Navbar = () => {
               </button>
             )}
 
-            {/* Find House: OPEN SEARCH MODAL (instead of navigating) */}
             <button
               onClick={() => setSearchOpen(true)}
               className="text-white bg-[#EC733B] px-6 py-2 border-2 border-[#EC733B] rounded-lg transform transition hover:translate-x-2 cursor-pointer"
@@ -126,7 +119,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Mobile Hamburger */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

@@ -53,9 +53,6 @@ const Categories = () => {
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800">
             Popular Categories
           </h2>
-          <p className="text-gray-500 mt-2">
-            There are 3228 ads in 12+ categories
-          </p>
         </div>
 
     

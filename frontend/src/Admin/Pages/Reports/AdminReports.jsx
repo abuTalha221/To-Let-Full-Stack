@@ -49,7 +49,7 @@ const AdminReports = () => {
     );
   }
 
-  const { current_stats, growth, all_time, monthly_breakdown, date_range } = reportData;
+  const { current_stats, growth, all_time, date_range } = reportData;
 
   return (
     <div className="p-6 space-y-6">
@@ -209,52 +209,6 @@ const AdminReports = () => {
         </div>
       </div>
 
-      {/* MONTHLY BREAKDOWN */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b">
-          <h3 className="text-lg font-bold text-gray-800">
-            📅 Monthly Breakdown
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Month
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Earnings
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Credits Sold
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Orders
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {monthly_breakdown.map((month) => (
-                <tr key={month.month_number} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                    {month.month}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatCurrency(month.earnings)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {month.credits.toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {month.orders}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };

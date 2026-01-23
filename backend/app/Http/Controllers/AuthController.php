@@ -9,21 +9,26 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailOtpMail;
 use App\Mail\RegistrationSuccessMail;
+use Illuminate\Validation\Rules\Password;
+
 
 class AuthController extends Controller
 {
     const OTP_EXPIRY = 600;       // 10 minutes
     const RESEND_COOLDOWN = 60;   // 60 seconds
 
-    // =============================
-    // 🔹 REGISTER (SEND OTP)
-    // =============================
+    
     public function register(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => ['required', 'string', 'confirmed', Password::min(6)->mixedCase()->numbers()->symbols()],
+        ], [
+            'password.required' => 'Password is required',
+            'password.string' => 'Password must be a string',
+            'password.confirmed' => 'Password confirmation does not match',
+            'password' => 'Password must be at least 6 characters long and contain uppercase, lowercase, numbers, and symbols',
         ]);
 
         $user = User::where('email', $validated['email'])->first();
@@ -53,7 +58,7 @@ class AuthController extends Controller
             ]);
         }
 
-        // ✅ SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
+        //  SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
         Mail::to($user->email)->send(new EmailOtpMail($otp));
 
         return response()->json([
@@ -64,9 +69,9 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // =============================
+
     // 🔹 VERIFY EMAIL OTP
-    // =============================
+
     public function verifyEmailOtp(Request $request)
     {
         $request->validate([
@@ -96,7 +101,7 @@ class AuthController extends Controller
             'email_otp_expires_at' => null,
         ]);
 
-        // ✅ SEND WELCOME EMAIL
+        // SEND WELCOME EMAIL
         Mail::to($user->email)->send(new RegistrationSuccessMail($user));
 
         // 🔑 Login token
@@ -110,9 +115,9 @@ class AuthController extends Controller
         ]);
     }
 
-    // =============================
-    // 🔁 RESEND OTP
-    // =============================
+   
+    //  RESEND OTP
+
     public function resendOtp(Request $request)
     {
         $request->validate([
@@ -143,7 +148,7 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
-        // ✅ SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
+        //  SEND OTP VIA CONFIGURED MAILER (SMTP/MAILTRAP/ETC)
         Mail::to($user->email)->send(new EmailOtpMail($otp));
 
         return response()->json([
@@ -152,9 +157,8 @@ class AuthController extends Controller
         ]);
     }
 
-    // =============================
+
     // 🔹 LOGIN
-    // =============================
     public function login(Request $request)
     {
         $request->validate([
@@ -204,9 +208,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // =============================
     // 🔹 LOGOUT
-    // =============================
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -217,14 +219,12 @@ class AuthController extends Controller
         ]);
     }
 
-    // =============================
-    // 🔹 AUTH USER
-    // =============================
+    //  AUTH USER
     public function user(Request $request)
     {
         $user = $request->user();
         
-        // 🔒 CHECK IF USER IS BLOCKED
+        //  CHECK IF USER IS BLOCKED
         if ($user->is_blocked) {
             return response()->json([
                 'status' => false,
@@ -236,6 +236,100 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'user' => $user,
+        ]);
+    }
+
+    // 🔹 FORGOT PASSWORD - SEND OTP
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Email not registered',
+            ], 404);
+        }
+
+        if (!$user->email_verified_at) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please verify your email first',
+            ], 403);
+        }
+
+        // Check cooldown
+        if ($user->updated_at->addSeconds(self::RESEND_COOLDOWN)->gt(now())) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please wait before requesting a new OTP',
+            ], 429);
+        }
+
+        $otp = (string) rand(100000, 999999);
+
+        $user->update([
+            'email_otp' => $otp,
+            'email_otp_expires_at' => now()->addSeconds(self::OTP_EXPIRY),
+            'updated_at' => now(),
+        ]);
+
+        // SEND OTP VIA EMAIL
+        Mail::to($user->email)->send(new EmailOtpMail($otp));
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP sent to your email',
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
+    }
+
+    // 🔹 RESET PASSWORD - VERIFY OTP & UPDATE PASSWORD
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'otp' => 'required|digits:6',
+            'password' => ['required', 'string', 'confirmed', Password::min(6)->mixedCase()->numbers()->symbols()],
+        ], [
+            'password.required' => 'Password is required',
+            'password.string' => 'Password must be a string',
+            'password.confirmed' => 'Password confirmation does not match',
+            'password' => 'Password must be at least 6 characters long and contain uppercase, lowercase, numbers, and symbols',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        // Verify OTP
+        if ($user->email_otp !== $request->otp) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid OTP',
+            ], 400);
+        }
+
+        if (now()->gt($user->email_otp_expires_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'OTP expired',
+            ], 400);
+        }
+
+        // Update password and clear OTP
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'email_otp' => null,
+            'email_otp_expires_at' => null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password reset successfully',
         ]);
     }
 }

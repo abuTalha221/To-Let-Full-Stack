@@ -59,10 +59,8 @@ const UserNavbar = ({ sidebarOpen = false, setSidebarOpen = () => {}, hideSideba
     <>
       {/* NAVBAR */} 
       <header className="bg-white shadow-md px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 w-full z-20 app-header print-hide">
-        {/* LEFT AREA */}
         <div className="flex items-center gap-3 sm:gap-4">
 
-          {/* Sidebar Toggle */}
           {!hideSidebarToggle && (
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}

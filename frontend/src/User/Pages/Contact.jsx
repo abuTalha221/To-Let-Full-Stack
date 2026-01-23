@@ -225,9 +225,9 @@ const Contact = () => {
             </form>
           </div>
 
-          {/* Additional Information */}
+          // Additional Info - Social Links
           <div className="lg:col-span-1">
-            {/* Follow Us */}
+            // Follow Us
             <div className="bg-white rounded-xl shadow-md p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-6">Follow Us</h3>
               <div className="flex gap-4">

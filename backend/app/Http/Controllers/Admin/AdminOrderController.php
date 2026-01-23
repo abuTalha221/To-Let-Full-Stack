@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
 {
-    /**
-     * 📋 Get all orders (with user)
-     */
+    
     public function index()
     {
         $orders = Order::with('user')
@@ -23,12 +21,10 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    /**
-     * 🔍 View single order (with user)
-     */
+    //view single order details
     public function show($id)
     {
-        $order = Order::with('user')->find($id);
+        $order = Order::with('user', 'transactions')->find($id);
 
         if (!$order) {
             return response()->json([
@@ -43,9 +39,7 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    /**
-     * 🔄 Update order status
-     */
+    // Update order status
     public function updateStatus(Request $request, $id)
     {
         $request->validate([

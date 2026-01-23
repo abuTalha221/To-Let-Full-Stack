@@ -92,7 +92,7 @@ class PaymentController extends Controller
             ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
             : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php';
 
-        // ✅ 8. Call SSLCommerz (sandbox fix applied)
+        //  8. Call SSLCommerz (sandbox fix applied)
         try {
             $response = Http::withoutVerifying()
                 ->timeout(20)
@@ -108,7 +108,7 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 9. Handle failure
+        //  9. Handle failure
         if ($response->failed()) {
             $transaction->update(['status' => 'failed']);
             return response()->json([
@@ -118,22 +118,22 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 10. Return FULL SSL response to frontend and include server transaction id
+        //  10. Return FULL SSL response to frontend and include server transaction id
         $resp = $response->json();
         $resp['transaction_id'] = $transactionId;
         $resp['server_transaction_id'] = $transactionId;
         return response()->json($resp);
     }
 
-    // ✅ INITIATE ORDER PAYMENT
+    //  INITIATE ORDER PAYMENT
     public function initiateOrderPayment(Request $request)
     {
-        // ✅ 1. Validate frontend data
+        //  1. Validate frontend data
         $request->validate([
             'order_id' => 'required|integer',
         ]);
 
-        // ✅ 2. Check credentials
+        //  2. Check credentials
         if (!env('SSLCOMMERZ_STORE_ID') || !env('SSLCOMMERZ_STORE_PASSWORD')) {
             return response()->json([
                 'status' => false,
@@ -141,7 +141,7 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 3. Get authenticated user
+        //  3. Get authenticated user
         $user = auth()->user();
         if (!$user) {
             return response()->json([
@@ -150,7 +150,7 @@ class PaymentController extends Controller
             ], 401);
         }
 
-        // ✅ 4. Find the order
+        //  4. Find the order
         $order = \App\Models\Order::where('id', $request->order_id)
             ->where('user_id', $user->id)
             ->first();
@@ -169,10 +169,10 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        // ✅ 5. Generate transaction ID
+        //  5. Generate transaction ID
         $transactionId = 'ORD_' . $order->id . '_' . time();
 
-        // ✅ 6. Save transaction record
+        //  6. Save transaction record
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'package_name' => 'Order #' . $order->id,
@@ -184,7 +184,7 @@ class PaymentController extends Controller
             'order_id' => $order->id,
         ]);
 
-        // ✅ 7. Prepare post data
+        //  7. Prepare post data
         $post_data = [
             'store_id'     => env('SSLCOMMERZ_STORE_ID'),
             'store_passwd' => env('SSLCOMMERZ_STORE_PASSWORD'),
@@ -210,12 +210,12 @@ class PaymentController extends Controller
             'product_profile'  => 'non-physical',
         ];
 
-        // ✅ 8. Sandbox or Live URL
+        //  8. Sandbox or Live URL
         $api_url = env('SSLCOMMERZ_SANDBOX', true)
             ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
             : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php';
 
-        // ✅ 9. Call SSLCommerz
+        //  9. Call SSLCommerz
         try {
             $response = Http::withoutVerifying()
                 ->timeout(20)
@@ -230,7 +230,7 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 10. Handle failure
+        //  10. Handle failure
         if ($response->failed()) {
             $transaction->update(['status' => 'failed']);
             return response()->json([
@@ -240,18 +240,18 @@ class PaymentController extends Controller
             ], 500);
         }
 
-        // ✅ 11. Return SSL response and include our server transaction_id for client-side polling
+        //  11. Return SSL response and include our server transaction_id for client-side polling
         $resp = $response->json();
         $resp['transaction_id'] = $transactionId;
         $resp['server_transaction_id'] = $transactionId;
         return response()->json($resp);
     }
 
-    // ✅ SUCCESS: Backend receives callback, then redirects to frontend
+    //  SUCCESS: Backend receives callback, then redirects to frontend
     public function success(Request $request)
     {
         try {
-            // ✅ Get transaction ID from SSLCommerz callback
+            //  Get transaction ID from SSLCommerz callback
             $transactionId = $request->tran_id;
             
             \Log::info('Payment success callback received:', [
@@ -259,7 +259,7 @@ class PaymentController extends Controller
                 'status' => $request->status,
             ]);
 
-            // ✅ Find transaction record
+            //  Find transaction record
             $transaction = Transaction::where('transaction_id', $transactionId)->first();
             
             if (!$transaction) {
@@ -267,13 +267,13 @@ class PaymentController extends Controller
                 return redirect($this->getFrontendUrl() . '/user/credits?payment_status=failed&message=Transaction%20not%20found');
             }
 
-            // ✅ Mark transaction as success
+            //  Mark transaction as success
             $transaction->update([
                 'status' => 'success',
                 'raw_response' => $request->all(),
             ]);
 
-            // ✅ Add credits to user (for credit purchases)
+            //  Add credits to user (for credit purchases)
             if ($transaction->credits > 0) {
                 $user = $transaction->user;
                 if ($user) {
@@ -302,7 +302,7 @@ class PaymentController extends Controller
 
             \Log::info('Payment completed successfully for transaction: ' . $transactionId);
 
-            // ✅ Redirect to appropriate page
+            //  Redirect to appropriate page
             return redirect($redirectUrl);
 
         } catch (\Exception $e) {
@@ -315,7 +315,7 @@ class PaymentController extends Controller
         }
     }
 
-    // ❌ FAIL: Backend receives callback, then redirects to frontend
+    //  FAIL: Backend receives callback, then redirects to frontend
     public function fail(Request $request)
     {
         try {
@@ -339,7 +339,7 @@ class PaymentController extends Controller
         return redirect($this->getFrontendUrl() . '/user/credits?payment_status=failed&message=Payment%20failed');
     }
 
-    // ❌ CANCEL: Backend receives callback, then redirects to frontend
+    //  CANCEL: Backend receives callback, then redirects to frontend
     public function cancel(Request $request)
     {
         $transactionId = $request->tran_id ?? null;

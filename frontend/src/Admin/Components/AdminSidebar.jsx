@@ -8,7 +8,6 @@ import {
   MdPeople,
   MdHomeWork,
   MdShoppingCart,
-  MdLocationOn,
   MdAssessment,
   MdLogout,
   MdPayment,
@@ -78,7 +77,7 @@ const menu = [
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
-  // 🔴 LOGOUT HANDLER
+  // LOGOUT HANDLER
   const handleLogout = async () => {
     const confirm = await Swal.fire({
       title: "Logout?",
@@ -93,17 +92,17 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
     if (!confirm.isConfirmed) return;
 
     try {
-      // 🔐 Backend logout
+      // Backend logout
       await api.post("/admin/logout");
 
-      // 🧹 Clear admin data
+      // Clear admin data
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin");
 
-      // 🔒 Remove auth header
+      // Remove auth header
       delete api.defaults.headers.common.Authorization;
 
-      // ✅ Success message
+      // Success message
       await Swal.fire({
         icon: "success",
         title: "Logged Out 👋",
@@ -111,7 +110,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         confirmButtonColor: "#e45716",
       });
 
-      // 🔁 Redirect to login
+      // Redirect to login
       navigate("/admin");
     } catch (error) {
       Swal.fire({

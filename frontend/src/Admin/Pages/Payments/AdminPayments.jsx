@@ -8,11 +8,10 @@ const AdminPayments = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterGateway, setFilterGateway] = useState("all");
 
   useEffect(() => {
     fetchPayments();
-  }, [filterStatus, filterGateway]);
+  }, [filterStatus]);
 
   const fetchPayments = async () => {
     try {
@@ -20,7 +19,6 @@ const AdminPayments = () => {
         params: {
           search: searchTerm,
           status: filterStatus,
-          gateway: filterGateway,
         },
       });
       setPayments(res.data.transactions || []);
@@ -51,9 +49,7 @@ const AdminPayments = () => {
       payment.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || payment.status === filterStatus;
-    const matchesGateway =
-      filterGateway === "all" || payment.payment_gateway === filterGateway;
-    return matchesSearch && matchesStatus && matchesGateway;
+    return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
@@ -161,20 +157,6 @@ const AdminPayments = () => {
           </select>
         </div>
 
-        {/* Gateway Filter */}
-        <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg">
-          <MdFilterList className="text-gray-400" />
-          <select
-            value={filterGateway}
-            onChange={(e) => setFilterGateway(e.target.value)}
-            className="bg-transparent outline-none text-sm"
-          >
-            <option value="all">All Gateways</option>
-            <option value="sslcommerz">SSL Commerz</option>
-            <option value="stripe">Stripe</option>
-            <option value="paypal">PayPal</option>
-          </select>
-        </div>
       </div>
 
       {/* 🔷 PAYMENTS TABLE */}

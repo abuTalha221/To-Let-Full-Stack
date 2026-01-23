@@ -176,7 +176,15 @@ const ShowPost = () => {
       setProperty(res.data.property);
       return res.data.property;
     } catch {
-      Swal.fire("Error", "Property not found", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Property Not Found",
+        text: "The property you're looking for doesn't exist or has been removed.",
+        confirmButtonText: "Back to Home",
+        confirmButtonColor: "#e45716",
+      }).then(() => {
+        navigate("/");
+      });
       return null;
     } finally {
       setLoading(false);

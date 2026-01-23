@@ -8,14 +8,11 @@ use App\Http\Controllers\Controller;
 
 class AdminPaymentController extends Controller
 {
-    /**
-     * Get all transactions/payments
-     */
+    
     public function index(Request $request)
     {
         $search = $request->query('search', '');
         $status = $request->query('status', 'all');
-        $gateway = $request->query('gateway', 'all');
 
         $query = Transaction::with('user');
 
@@ -35,11 +32,7 @@ class AdminPaymentController extends Controller
             $query->where('status', $status);
         }
 
-        // Filter by payment gateway
-        if ($gateway !== 'all') {
-            $query->where('payment_gateway', $gateway);
-        }
-
+        //it works for assending and desending order
         $transactions = $query->orderBy('created_at', 'desc')->get();
 
         // Calculate statistics

@@ -29,4 +29,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Order::class);
+    }
 }

@@ -14,7 +14,7 @@ class CreditController extends Controller
             'credits' => 'required|integer|min:1',
         ]);
 
-        $user = $request->user(); // logged-in user
+        $user = $request->user();
         $user->credits += $request->credits;
         $user->save();
 

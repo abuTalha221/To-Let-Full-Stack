@@ -41,7 +41,7 @@ const AdminOrders = () => {
     try {
       const res = await api.get("/admin/orders");
 
-      /* 🔥 SORT BY DATE (LATEST FIRST) */
+      // Sort by date
       const sortedOrders = res.data.orders.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );

@@ -15,7 +15,7 @@ class AdminDashboardController extends Controller
         return response()->json([
             'status' => true,
 
-            // 🔢 COUNTS
+            // COUNTS
             'stats' => [
                 'total_users' => User::count(),
                 'total_orders' => Order::count(),
@@ -23,12 +23,12 @@ class AdminDashboardController extends Controller
                 'total_payments' => Transaction::count(),
             ],
 
-            // 👤 RECENT USERS
+            // RECENT USERS
             'recent_users' => User::latest()
                 ->take(5)
                 ->get(['id', 'name', 'created_at']),
 
-            // 🛒 RECENT ORDERS
+            // RECENT ORDERS
             'recent_orders' => Order::latest()
                 ->take(5)
                 ->get(['id', 'area', 'district', 'status']),

@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
-    /* =====================================================
-       CREATE PROPERTY (USER)
-    ===================================================== */
+    
+      // Storing Properties details here
+    
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -90,6 +90,8 @@ class PropertyController extends Controller
                 'lift' => $request->boolean('lift'),
             ]);
 
+            // Storing Images as a Path also create image path and then the path is stored in the database
+
             if ($request->hasFile('images')) {
                 $inc = 1;
                 foreach ($request->file('images') as $image) {
@@ -108,7 +110,8 @@ class PropertyController extends Controller
                     $inc++;
                 }
             }
-
+            
+            // Deduct 20 credits from user
             $user->decrement('credits', 20);
 
             DB::commit();
@@ -128,6 +131,8 @@ class PropertyController extends Controller
             ], 500);
         }
     }
+
+    // Edit Property Details here, first validation then update
 
     public function update(Request $request, $id)
     {
@@ -172,14 +177,14 @@ class PropertyController extends Controller
             'price' => 'required|integer|min:0',
             'priceType' => 'required|in:Monthly,Weekly,Daily',
 
-            /* 🔥 PRICE INCLUDES */
+            
             'electricity' => 'nullable|boolean',
             'water'       => 'nullable|boolean',
             'security'    => 'nullable|boolean',
             'gas'         => 'nullable|boolean',
             'lift'        => 'nullable|boolean',
 
-            /* 🔥 IMAGES */
+            
             // 'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
 
@@ -213,7 +218,7 @@ class PropertyController extends Controller
                 'price' => $validated['price'],
                 'price_type' => $validated['priceType'],
 
-                /* 🔥 PRICE INCLUDES SAVE */
+                
                 'electricity' => $request->boolean('electricity'),
                 'water'       => $request->boolean('water'),
                 'security'    => $request->boolean('security'),
@@ -279,6 +284,7 @@ class PropertyController extends Controller
         }
     }
 
+    // Show property details here
 
     public function show($id)
     {
@@ -300,9 +306,7 @@ class PropertyController extends Controller
 
 
 
-    /* =====================================================
-       MY PROPERTIES
-    ===================================================== */
+   
     public function myProperties()
     {
         $properties = Property::with('images')
@@ -315,9 +319,7 @@ class PropertyController extends Controller
         ]);
     }
 
-    /* =====================================================
-       TOGGLE STATUS
-    ===================================================== */
+  // Toggle Property Status here
     public function toggleStatus($id)
     {
         $property = Property::where('id', $id)

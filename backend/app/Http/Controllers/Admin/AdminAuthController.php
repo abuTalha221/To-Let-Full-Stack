@@ -9,18 +9,16 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminAuthController extends Controller
 {
-    // =============================
-    // 🔐 ADMIN LOGIN
-    // =============================
+    // Admin Login
     public function login(Request $request)
     {
-        // 1️⃣ Validate input
+        // Validate input
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        // 2️⃣ Find admin by email
+        // Find admin by email
         $admin = Admin::where('email', $request->email)->first();
 
         if (!$admin) {
@@ -30,7 +28,7 @@ class AdminAuthController extends Controller
             ], 404);
         }
 
-        // 3️⃣ Check password
+        // Check password
         if (!Hash::check($request->password, $admin->password)) {
             return response()->json([
                 'status' => false,
@@ -38,7 +36,7 @@ class AdminAuthController extends Controller
             ], 401);
         }
 
-        // 4️⃣ Create Sanctum token
+        //  Create Sanctum token
         $token = $admin->createToken('admin_token')->plainTextToken;
 
         return response()->json([
@@ -53,9 +51,7 @@ class AdminAuthController extends Controller
         ], 200);
     }
 
-    // =============================
-    // 🚪 ADMIN LOGOUT
-    // =============================
+    // Admin Logout
     public function logout(Request $request)
     {
         if ($request->user()) {
@@ -69,9 +65,7 @@ class AdminAuthController extends Controller
     }
 
 
-    // =============================
-    // 👤 CURRENT ADMIN
-    // =============================
+    // Current Admin
     public function me(Request $request)
     {
         return response()->json([
